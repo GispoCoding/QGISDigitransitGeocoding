@@ -30,15 +30,15 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	digitransit_geocoder.py digitransit_geocoder_dialog.py
+	digitransit_geocoder.py digitransit_geocoder_dockwidget.py
 
 PLUGINNAME = DigitransitGeocoder
 
 PY_FILES = \
 	__init__.py \
-	digitransit_geocoder.py digitransit_geocoder_dialog.py
+	digitransit_geocoder.py digitransit_geocoder_dockwidget.py
 
-UI_FILES = digitransit_geocoder_dialog_base.ui
+UI_FILES = digitransit_geocoder_dockwidget_base.ui
 
 EXTRAS = metadata.txt icon.png
 

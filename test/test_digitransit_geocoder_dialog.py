@@ -12,7 +12,7 @@ import unittest
 
 from PyQt5.QtGui import QDialogButtonBox, QDialog
 
-from digitransit_geocoder_dialog import DigitransitGeocoderDialog
+from digitransit_geocoder_dockwidget import DigitransitGeocoderDockWidget
 
 from utilities import get_qgis_app
 QGIS_APP = get_qgis_app()
@@ -23,7 +23,7 @@ class DigitransitGeocoderDialogTest(unittest.TestCase):
 
     def setUp(self):
         """Runs before each test."""
-        self.dialog = DigitransitGeocoderDialog(None)
+        self.dialog = DigitransitGeocoderDockWidget(None)
 
     def tearDown(self):
         """Runs after each test."""

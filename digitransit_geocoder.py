@@ -12,14 +12,14 @@
  ***************************************************************************/
 
 """
-from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
-from .digitransit_geocoder_dialog import DigitransitGeocoderDialog
+from .digitransit_geocoder_dockwidget import DigitransitGeocoderDockWidget
 import os.path
 
 
@@ -52,8 +52,6 @@ class DigitransitGeocoder:
             if qVersion() > '4.3.3':
                 QCoreApplication.installTranslator(self.translator)
 
-        # Create the dialog (after translation) and keep reference
-        self.dlg = DigitransitGeocoderDialog()
 
         # Declare instance attributes
         self.actions = []
@@ -61,6 +59,10 @@ class DigitransitGeocoder:
         # TODO: We are going to let the user set this up in a future iteration
         self.toolbar = self.iface.addToolBar(u'DigitransitGeocoder')
         self.toolbar.setObjectName(u'DigitransitGeocoder')
+
+        self.pluginIsActive = False
+        self.dockwidget = None
+
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -162,6 +164,22 @@ class DigitransitGeocoder:
             parent=self.iface.mainWindow())
 
 
+    def onClosePlugin(self):
+        """Cleanup necessary items here when plugin dockwidget is closed"""
+
+        #print "** CLOSING DockWidgetTest"
+
+        # disconnects
+        self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
+
+        # remove this statement if dockwidget is to remain
+        # for reuse if plugin is reopened
+        # Commented next statement since it causes QGIS crashe
+        # when closing the docked window:
+        # self.dockwidget = None
+
+        self.pluginIsActive = False
+
     def unload(self):
         """Removes the plugin menu item and icon from QGIS GUI."""
         for action in self.actions:
@@ -174,13 +192,24 @@ class DigitransitGeocoder:
 
 
     def run(self):
-        """Run method that performs all the real work"""
-        # show the dialog
-        self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # See if OK was pressed
-        if result:
-            # Do something useful here - delete the line containing pass and
-            # substitute with your code.
-            pass
+        """Run method that loads and starts the plugin"""
+
+        if not self.pluginIsActive:
+            self.pluginIsActive = True
+
+            #print "** STARTING DockWidgetTest"
+
+            # dockwidget may not exist if:
+            #    first run of plugin
+            #    removed on close (see self.onClosePlugin method)
+            if self.dockwidget == None:
+                # Create the dockwidget (after translation) and keep reference
+                self.dockwidget = DigitransitGeocoderDockWidget()
+
+            # connect to provide cleanup on closing of dockwidget
+            self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+
+            # show the dockwidget
+            # TODO: fix to allow choice of dock location
+            self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
+            self.dockwidget.show()
