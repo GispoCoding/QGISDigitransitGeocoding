@@ -1,0 +1,39 @@
+# This file contains metadata for your plugin. Since 
+# version 2.0 of QGIS this is the proper way to supply 
+# information about a plugin. The old method of 
+# embedding metadata in __init__.py will 
+# is no longer supported since version 2.0.
+
+# This file should be included when you package your plugin.# Mandatory items:
+
+[general]
+name=Digitransit.fi Geocoder
+qgisMinimumVersion=3.0
+description=The plugin is meant for geocoding Finnish addresses
+version=0.1
+author=Gispo, Ltd.
+email=erno@gispo.fi
+
+about=The plugin is meant for anyone who wants to use the Digitransit.fi geocoding API and capabilities for Finnish addresses and places in QGIS.
+
+tracker=https://github.com/GispoCoding/QGISDigitransitGeocoding/issues
+repository=https://github.com/GispoCoding/QGISDigitransitGeocoding
+# End of mandatory metadata
+
+# Recommended items:
+
+# Uncomment the following line and add your changelog:
+# changelog=
+
+# Tags are comma separated with spaces allowed
+tags=geocoding, Finland
+
+homepage=https://github.com/GispoCoding/QGISDigitransitGeocoding
+category=Plugins
+icon=icon.png
+# experimental flag
+experimental=True
+
+# deprecated flag (applies to the whole plugin, not just a single version)
+deprecated=False
+
