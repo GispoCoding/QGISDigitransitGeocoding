@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>473</width>
+    <width>474</width>
     <height>759</height>
    </rect>
   </property>
@@ -48,7 +48,7 @@
            <item row="0" column="0">
             <widget class="QLabel" name="label_3">
              <property name="text">
-              <string>Maximum number of addresses to get</string>
+              <string>Maximum number of addresses to list</string>
              </property>
             </widget>
            </item>
@@ -70,7 +70,7 @@
          <item>
           <widget class="QCheckBox" name="checkBoxSearchMapCanvasArea">
            <property name="text">
-            <string>Search only from the visible map layer area</string>
+            <string>Search only from the visible map area</string>
            </property>
           </widget>
          </item>
@@ -132,7 +132,7 @@
             <item>
              <widget class="QCheckBox" name="checkBoxSearchVenue">
               <property name="text">
-               <string>Venues</string>
+               <string>Places and venues</string>
               </property>
               <property name="checked">
                <bool>true</bool>
@@ -158,7 +158,7 @@
       <item row="4" column="0">
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
-         <string>Showing search results</string>
+         <string>Showing search results on the map</string>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
@@ -177,7 +177,7 @@
          <item>
           <widget class="QRadioButton" name="radioButtonResultsShowSelected">
            <property name="text">
-            <string>Show the selected result on the map</string>
+            <string>Show the selected result list item on the map</string>
            </property>
            <property name="checked">
             <bool>false</bool>
