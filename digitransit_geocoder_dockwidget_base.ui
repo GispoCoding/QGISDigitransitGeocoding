@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>474</width>
-    <height>759</height>
+    <height>939</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,6 +15,25 @@
   </property>
   <widget class="QWidget" name="dockWidgetContents">
    <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0">
+     <widget class="QGroupBox" name="groupBox_5">
+      <property name="title">
+       <string>Attributions</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Please, note that the data is from the &lt;a href=&quot;http://www.maanmittauslaitos.fi/en/maps-and-spatial-data/expert-users/topographic-data-and-how-acquire-it&quot;&gt;National Land Survey of Finland Topographic Database&lt;/a&gt;, &lt;a href=&quot;https://www.avoindata.fi/data/fi/dataset/rakennusten-osoitetiedot-koko-suomi&quot;&gt;Population Register Centre of Finland&lt;/a&gt; and &lt;a href=&quot;https://www.openstreetmap.org&quot;&gt;OpenStreetMap&lt;/a&gt;. The National Land Survey (NLS.fi) and the Population Register Centre (via OpenAddresses) data are licensed under &lt;a href=&quot;https://creativecommons.org/licenses/by/4.0/&quot;&gt;CC BY 4.0 license&lt;/a&gt;. The OpenStreetMap data is licensed under &lt;a href=&quot;https://opendatacommons.org/licenses/odbl/&quot;&gt;ODbL license&lt;/a&gt;.</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0" alignment="Qt::AlignLeft|Qt::AlignTop">
@@ -192,7 +211,7 @@
       </item>
      </layout>
     </item>
-    <item row="1" column="0">
+    <item row="2" column="0">
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
