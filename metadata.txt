@@ -10,7 +10,7 @@
 name=Digitransit.fi Geocoder
 qgisMinimumVersion=3.0
 description=The plugin is meant for searching and geocoding Finnish addresses
-version=0.1
+version=0.2
 author=Gispo, Ltd.
 email=erno@gispo.fi
 
