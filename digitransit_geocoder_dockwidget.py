@@ -17,7 +17,7 @@ import os
 
 from PyQt5 import QtGui, QtWidgets, uic
 from PyQt5.QtCore import pyqtSignal, QMetaObject, pyqtSlot, QVariant
-#from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 from qgis.core import Qgis, QgsMessageLog
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 from PyQt5.QtCore import QUrl
@@ -33,11 +33,21 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     closingPlugin = pyqtSignal()
 
-    def __init__(self, iface, parent=None):
+    def __init__(self, iface,
+                 no_source_title,
+                 no_source_message,
+                 no_locations_title,
+                 no_locations_message,
+                 parent=None):
         """Constructor."""
         super(DigitransitGeocoderDockWidget, self).__init__(parent)
 
         self.iface = iface
+
+        self.no_source_title = no_source_title
+        self.no_source_message = no_source_message
+        self.no_locations_title = no_locations_title
+        self.no_locations_message = no_locations_message
 
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
@@ -75,6 +85,8 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #QgsMessageLog.logMessage(self.lineEditAddress.text(), 'DigitransitGeocoder', Qgis.Info)
 
         self.search_text = self.lineEditAddress.text()
+        if len(self.search_text) == 0:
+            return
         self.geocode(self.search_text)
 
     def geocode(self, search_text):
@@ -91,6 +103,11 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             if self.checkBoxOSM.isChecked():
                 sources = sources + "osm,"
             search_URL = search_URL + sources.rstrip(',')
+        else:
+            QMessageBox.information(self.iface.mainWindow(),
+                                    self.no_source_title,
+                                    self.no_source_message)
+            return
 
         if self.checkBoxSearchAddress.isChecked() or self.checkBoxSearchVenue.isChecked() or self.checkBoxSearchStreet.isChecked():
             layers = "&layers="
@@ -101,6 +118,11 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             if self.checkBoxSearchStreet.isChecked():
                 layers = layers + "street,"
             search_URL = search_URL + layers.rstrip(',')
+        else:
+            QMessageBox.information(self.iface.mainWindow(),
+                                    self.no_locations_title,
+                                    self.no_locations_message)
+            return
 
         if self.checkBoxSearchMapCanvasArea.isChecked():
             extent = self.iface.mapCanvas().extent()
@@ -230,6 +252,11 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if 'neighbourhood' in properties:
             neighbourhood = properties['neighbourhood']
             neighbourhood_gid = properties['neighbourhood_gid']
+        postalcode = ''
+        postalcode_gid = ''
+        if 'postalcode' in properties:
+            postalcode = properties['postalcode']
+            postalcode_gid = properties['postalcode_gid']
 
         qgs_feature.setAttributes([properties['id'],
                                    properties['gid'],
@@ -237,8 +264,8 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                    properties['source'],
                                    properties['source_id'],
                                    properties['name'],
-                                   properties['postalcode'],
-                                   properties['postalcode_gid'],
+                                   postalcode,
+                                   postalcode_gid,
                                    properties['confidence'],
                                    properties['accuracy'],
                                    properties['country'],

@@ -63,6 +63,11 @@ class DigitransitGeocoder:
         self.pluginIsActive = False
         self.dockwidget = None
 
+        self.no_source_title = self.tr(u'No data sources selected')
+        self.no_source_message = self.tr(u'Please, select at least one data source')
+        self.no_locations_title = self.tr(u'No types of locations selected')
+        self.no_locations_message = self.tr(u'Please, select at least one type of location to search')
+
 
     # noinspection PyMethodMayBeStatic
     def tr(self, message):
@@ -204,7 +209,11 @@ class DigitransitGeocoder:
             #    removed on close (see self.onClosePlugin method)
             if self.dockwidget == None:
                 # Create the dockwidget (after translation) and keep reference
-                self.dockwidget = DigitransitGeocoderDockWidget(self.iface)
+                self.dockwidget = DigitransitGeocoderDockWidget(self.iface,
+                                                                self.no_source_title,
+                                                                self.no_source_message,
+                                                                self.no_locations_title,
+                                                                self.no_locations_message)
 
             # connect to provide cleanup on closing of dockwidget
             self.dockwidget.closingPlugin.connect(self.onClosePlugin)
