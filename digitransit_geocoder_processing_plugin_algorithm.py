@@ -76,7 +76,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         self.feedback = feedback
 
         col_separator = self.parameterAsString(parameters, self.SEPARATOR, context)
-        address_field_names = self.parameterAsString(parameters, self.ADDRESS_FIELD_NAMES, context)
+        address_field_names_string = self.parameterAsString(parameters, self.ADDRESS_FIELD_NAMES, context)
 
         file_path = self.parameterAsFile(parameters, self.INPUT, context)
 
@@ -85,7 +85,11 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         try:
             with open(file_path, 'r') as csv_file:
 
-                address_field_names = self.ADDRESS_FIELD_NAMES.slpit(',').lstrip(' ').rstrip(' ')
+                address_field_name_tokens = address_field_names_string.split(',')
+                address_field_names = []
+                for address_field_name_token in address_field_name_tokens:
+                    address_field_name = address_field_name_token.lstrip(' ').rstrip(' ')
+                    address_field_names.append(address_field_name)
 
                 # Use the header row for feature field names
                 header_row = next(csv_file)

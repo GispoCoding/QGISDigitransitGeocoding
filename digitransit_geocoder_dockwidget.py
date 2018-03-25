@@ -322,6 +322,16 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if 'postalcode' in properties:
             postalcode = properties['postalcode']
             postalcode_gid = properties['postalcode_gid']
+        region = ''
+        region_gid = ''
+        if 'region' in properties:
+            region = properties['region']
+            region_gid = properties['region_gid']
+        localadmin = ''
+        localadmin_gid = ''
+        if 'localadmin' in properties:
+            localadmin = properties['localadmin']
+            localadmin_gid = properties['localadmin_gid']
 
         qgs_feature.setAttributes([properties['id'],
                                    properties['gid'],
@@ -336,10 +346,10 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                    properties['country'],
                                    properties['country_gid'],
                                    properties['country_a'],
-                                   properties['region'],
-                                   properties['region_gid'],
-                                   properties['localadmin'],
-                                   properties['localadmin_gid'],
+                                   region,
+                                   region_gid,
+                                   localadmin,
+                                   localadmin_gid,
                                    locality,
                                    locality_gid,
                                    neighbourhood,
