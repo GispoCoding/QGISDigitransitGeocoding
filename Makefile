@@ -18,7 +18,7 @@
 #Add iso code for any locales you want to support here (space separated)
 # default is no locales
 # LOCALES = af
-LOCALES =
+LOCALES = fi
 
 # If locales are enabled, set the name of the lrelease binary on your system. If
 # you have trouble compiling the translations, you may have to specify the full path to
@@ -30,13 +30,19 @@ LOCALES =
 # translation
 SOURCES = \
 	__init__.py \
-	digitransit_geocoder.py digitransit_geocoder_dockwidget.py
+	digitransit_geocoder.py \
+	digitransit_geocoder_dockwidget.py \
+	digitransit_geocoder_processing_plugin_provider.py \
+	digitransit_geocoder_processing_plugin_algorithm.py
 
 PLUGINNAME = DigitransitGeocoder
 
 PY_FILES = \
 	__init__.py \
-	digitransit_geocoder.py digitransit_geocoder_dockwidget.py
+	digitransit_geocoder.py \
+	digitransit_geocoder_dockwidget.py \
+	digitransit_geocoder_processing_plugin_provider.py \
+	digitransit_geocoder_processing_plugin_algorithm.py
 
 UI_FILES = digitransit_geocoder_dockwidget_base.ui
 

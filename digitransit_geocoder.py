@@ -15,11 +15,13 @@
 from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication, Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
+from qgis.core import QgsApplication
 
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
 from .digitransit_geocoder_dockwidget import DigitransitGeocoderDockWidget
+from .digitransit_geocoder_processing_plugin_provider import DigitransitProcessingPluginProvider
 import os.path
 
 
@@ -62,6 +64,8 @@ class DigitransitGeocoder:
 
         self.pluginIsActive = False
         self.dockwidget = None
+
+        self.processing_provider = DigitransitProcessingPluginProvider()
 
         self.no_source_title = self.tr(u'No data sources selected')
         self.no_source_message = self.tr(u'Please, select at least one data source')
@@ -168,6 +172,7 @@ class DigitransitGeocoder:
             callback=self.run,
             parent=self.iface.mainWindow())
 
+        QgsApplication.processingRegistry().addProvider(self.processing_provider)
 
     def onClosePlugin(self):
         """Cleanup necessary items here when plugin dockwidget is closed"""
@@ -195,6 +200,7 @@ class DigitransitGeocoder:
         # remove the toolbar
         del self.toolbar
 
+        QgsApplication.processingRegistry().removeProvider(self.processing_provider)
 
     def run(self):
         """Run method that loads and starts the plugin"""
