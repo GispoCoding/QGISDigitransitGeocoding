@@ -4,54 +4,66 @@
 #  by Erno Mäkinen (erno@gispo.fi)
 #  on 24.3.2018
 
-from PyQt5.QtCore import QCoreApplication
+import json
+import urllib
+import urllib.parse
+
+from PyQt5.QtCore import (QCoreApplication,
+                          QVariant)
+
+
 from qgis.core import (QgsProcessing,
-                       QgsFeatureSink,
-                       QgsProcessingAlgorithm,
-                       QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink)
+    QgsFeatureSink,
+    QgsProcessingAlgorithm,
+    QgsProcessingParameterFile,
+    QgsProcessingParameterString,
+    QgsWkbTypes,
+    QgsProcessingParameterFeatureSink,
+    Qgis,
+    QgsMessageLog,
+    QgsFields,
+    QgsField,
+    QgsFeature,
+    QgsCoordinateReferenceSystem,
+    QgsVectorLayer,
+    QgsGeometry,
+    QgsPointXY)
 
 
 class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
-    """
-    This is an example algorithm that takes a vector layer and
-    creates a new identical one.
-
-    It is meant to be used as an example of how to create your own
-    algorithms and explain methods and variables used to do it. An
-    algorithm like this will be available in all elements, and there
-    is not need for additional work.
-
-    All Processing algorithms should extend the QgsProcessingAlgorithm
-    class.
-    """
-
-    # Constants used to refer to parameters and outputs. They will be
-    # used when calling the algorithm from another algorithm, or when
-    # calling from the QGIS console.
 
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
+    SEPARATOR = 'SEPARATOR'
+    ADDRESS_FIELD_NAMES = 'ADDRESS_FIELD_NAMES'
+    address_field_indices = []
 
-    def initAlgorithm(self, config):
-        """
-        Here we define the inputs and output of the algorithm, along
-        with some other properties.
-        """
+    def initAlgorithm(self, config=None):
 
-        # We add the input vector features source. It can have any kind of
-        # geometry.
         self.addParameter(
-            QgsProcessingParameterFeatureSource(
+            QgsProcessingParameterFile(
                 self.INPUT,
-                self.tr('Input layer'),
-                [QgsProcessing.TypeVectorAnyGeometry]
+                self.tr('Input CSV file'),
+                extension='csv'
             )
         )
 
-        # We add a feature sink in which to store our processed features (this
-        # usually takes the form of a newly created vector layer when the
-        # algorithm is run in QGIS).
+        self.addParameter(
+            QgsProcessingParameterString(
+                self.SEPARATOR,
+                self.tr('Column separator'),
+                ';'
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterString(
+                self.ADDRESS_FIELD_NAMES,
+                self.tr('Address field name(s) as a comma separated list'),
+                'Laitoksen sijaintiosoite, Laitoksen sijaintikunta'
+            )
+        )
+
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.OUTPUT,
@@ -60,73 +72,188 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         )
 
     def processAlgorithm(self, parameters, context, feedback):
-        """
-        Here is where the processing itself takes place.
-        """
 
-        # Retrieve the feature source and sink. The 'dest_id' variable is used
-        # to uniquely identify the feature sink, and must be included in the
-        # dictionary returned by the processAlgorithm function.
-        source = self.parameterAsSource(parameters, self.INPUT, context)
-        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
-                context, source.fields(), source.wkbType(), source.sourceCrs())
+        self.feedback = feedback
 
-        # Compute the number of steps to display within the progress bar and
-        # get features from source
-        total = 100.0 / source.featureCount() if source.featureCount() else 0
-        features = source.getFeatures()
+        col_separator = self.parameterAsString(parameters, self.SEPARATOR, context)
+        address_field_names = self.parameterAsString(parameters, self.ADDRESS_FIELD_NAMES, context)
 
-        for current, feature in enumerate(features):
-            # Stop the algorithm if cancel button has been clicked
-            if feedback.isCanceled():
-                break
+        file_path = self.parameterAsFile(parameters, self.INPUT, context)
+
+        # QgsMessageLog.logMessage(str(file_path), "DigitransitGeocoder", Qgis.Info)
+
+        try:
+            with open(file_path, 'r') as csv_file:
+
+                address_field_names = self.ADDRESS_FIELD_NAMES.slpit(',').lstrip(' ').rstrip(' ')
+
+                # Use the header row for feature field names
+                header_row = next(csv_file)
+                columns = header_row.rstrip().split(col_separator)
+                # QgsMessageLog.logMessage(str(columns), "DigitransitGeocoder", Qgis.Info)
+                fields = QgsFields()
+                for column in columns:
+                    fields.append(QgsField(column, QVariant.String))
+
+                    for index, address_field_name in enumerate(address_field_names):
+                        if column == address_field_name:
+                            self.address_field_indices.append(index)
+                            break
+
+                # Add the Digitransit.fi
+                fields.append(QgsField("digitransit_confidence", QVariant.Double))
+                fields.append(QgsField("digitransit_accuracy", QVariant.String))
+                fields.append(QgsField("digitransit_layer", QVariant.String))
+                fields.append(QgsField("digitransit_source", QVariant.String))
+                fields.append(QgsField("digitransit_name", QVariant.String))
+                fields.append(QgsField("digitransit_localadmin", QVariant.String))
+                fields.append(QgsField("digitransit_locality", QVariant.String))
+                fields.append(QgsField("digitransit_postalcode", QVariant.Int))
+                fields.append(QgsField("digitransit_region", QVariant.String))
+                fields.append(QgsField("digitransit_digitransit_query", QVariant.String))
+
+                # QgsMessageLog.logMessage(str(fields.toList()), "DigitransitGeocoder", Qgis.Info)
+                # QgsMessageLog.logMessage(str(QgsWkbTypes.Point), "DigitransitGeocoder", Qgis.Info)
+
+                self.layer = QgsVectorLayer("Point?crs=EPSG:4326", "geocoding result layer", "memory")
+                self.provider = self.layer.dataProvider()
+                self.layer.startEditing()
+                self.provider.addAttributes(fields)
+                self.features = []
+
+                (self.sink, self.dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
+                                                                 context, fields, QgsWkbTypes.Point,
+                                                                 QgsCoordinateReferenceSystem(4326))
+
+                # QgsMessageLog.logMessage("Created sink", "DigitransitGeocoder", Qgis.Info)
+
+                self.csv_rows = []
+
+                for row in csv_file:
+                    values = row.strip('\n').split(col_separator)
+                    # QgsMessageLog.logMessage(str(values), "DigitransitGeocoder", Qgis.Info)
+
+                    self.csv_rows.append(values)
+
+                self.geocode_csv_rows(self.csv_rows)
+
+        except IOError as e:
+            QgsMessageLog.logMessage(str(e), "DigitransitGeocoder", Qgis.Critical)
+
+        return {self.OUTPUT: self.dest_id}
+
+    def geocode_csv_rows(self, rows):
+        self.total_geocode_count = len(rows)
+        self.geocode_count = 0
+
+        for row in rows:
+
+            # Create search text (address) based on the address fields specified by the user
+            address = ''
+            for index in self.address_field_indices:
+                address += row[index] + ","
+            address = address.rstrip(",")
+
+            base_URL = "http://api.digitransit.fi/geocoding/v1/search?"
+
+            search_parameters = {
+                'text': address,
+                # 'sources': 'oa',
+                'size': 50
+            }
+
+            query_string = urllib.parse.urlencode(search_parameters)
+
+            search_URL = base_URL + query_string
+
+            QgsMessageLog.logMessage(search_URL, "DigitransitGeocoder", Qgis.Info)
+
+            r = urllib.request.urlopen(search_URL)
+            geocoding_result = json.loads(r.read().decode(r.info().get_param('charset') or 'utf-8'))
+            # QgsMessageLog.logMessage(str(geocoding_result), "DigitransitGeocoder", Qgis.Info)
+
+            if self.feedback.isCanceled():
+                return
+
+            self.geocode_count += 1
+
+            if len(geocoding_result['features']) > 0:
+                feature = geocoding_result['features'][0]  # We use only the feature with the highest confidence value
+            else:
+                QgsMessageLog.logMessage("Geocode not succesful for address: " + address, "DigitransitGeocoder",
+                                         Qgis.Warning)
+                return
+
+            qgs_feature = QgsFeature()
+            lon = feature['geometry']['coordinates'][0]
+            lat = feature['geometry']['coordinates'][1]
+            qgs_feature.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(lon, lat)))
+
+            values = list(row)
+
+            # also add a few of the geocoding result feature properties if available
+            properties = feature['properties']
+            confidence = -1
+            if 'confidence' in properties:
+                confidence = properties['confidence']
+            values.append(confidence)
+            accuracy = ''
+            if 'accuracy' in properties:
+                accuracy = properties['accuracy']
+            values.append(accuracy)
+            layer = ''
+            if 'layer' in properties:
+                layer = properties['layer']
+            values.append(layer)
+            source = ''
+            if 'source' in properties:
+                source = properties['source']
+            values.append(source)
+            name = ''
+            if 'name' in properties:
+                name = properties['name']
+            values.append(name)
+            localadmin = ''
+            if 'localadmin' in properties:
+                localadmin = properties['localadmin']
+            values.append(localadmin)
+            locality = ''
+            if 'locality' in properties:
+                locality = properties['locality']
+            values.append(locality)
+            postalcode = -1
+            if 'postalcode' in properties:
+                postalcode = properties['postalcode']
+            values.append(postalcode)
+            region = ''
+            if 'region' in properties:
+                region = properties['region']
+            values.append(region)
+            values.append(search_URL)
+
+            qgs_feature.setAttributes(values)
 
             # Add a feature in the sink
-            sink.addFeature(feature, QgsFeatureSink.FastInsert)
+            self.sink.addFeature(qgs_feature, QgsFeatureSink.FastInsert)
+
+            # QgsMessageLog.logMessage("Added a feature", "DigitransitGeocode    r", Qgis.Info)
 
             # Update the progress bar
-            feedback.setProgress(int(current * total))
+            self.feedback.setProgress(int(self.geocode_count * (100.0 / self.total_geocode_count)))
 
-        # Return the results of the algorithm. In this case our only result is
-        # the feature sink which contains the processed features, but some
-        # algorithms may return multiple feature sinks, calculated numeric
-        # statistics, etc. These should all be included in the returned
-        # dictionary, with keys matching the feature corresponding parameter
-        # or output names.
-        return {self.OUTPUT: dest_id}
+            if self.geocode_count == self.total_geocode_count:
+                QgsMessageLog.logMessage("Finished geocoding the CSV file", "DigitransitGeocoder", Qgis.Info)
 
     def name(self):
-        """
-        Returns the algorithm name, used for identifying the algorithm. This
-        string should be fixed for the algorithm, and must not be localised.
-        The name should be unique within each provider. Names should contain
-        lowercase alphanumeric characters only and no spaces or other
-        formatting characters.
-        """
         return 'geocodecsv'
 
     def displayName(self):
-        """
-        Returns the translated algorithm name, which should be used for any
-        user-visible display of the algorithm name.
-        """
         return self.tr('Geocode addresses in a CSV file')
 
     def group(self):
-        """
-        Returns the name of the group this algorithm belongs to. This string
-        should be localised.
-        """
         return self.tr('Geocode')
 
     def groupId(self):
-        """
-        Returns the unique ID of the group this algorithm belongs to. This
-        string should be fixed for the algorithm, and must not be localised.
-        The group id should be unique within each provider. Group id should
-        contain lowercase alphanumeric characters only and no spaces or other
-        formatting characters.
-        """
         return 'geocoding'
 
     def tr(self, string):
