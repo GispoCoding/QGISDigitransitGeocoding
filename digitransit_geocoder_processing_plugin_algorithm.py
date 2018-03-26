@@ -96,10 +96,10 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 columns = header_row.rstrip().split(col_separator)
                 # QgsMessageLog.logMessage(str(columns), "DigitransitGeocoder", Qgis.Info)
                 fields = QgsFields()
-                for column in columns:
+                for index, column in enumerate(columns):
                     fields.append(QgsField(column, QVariant.String))
 
-                    for index, address_field_name in enumerate(address_field_names):
+                    for address_field_name in address_field_names:
                         if column == address_field_name:
                             self.address_field_indices.append(index)
                             break
