@@ -10,7 +10,7 @@ import urllib.parse
 
 from PyQt5.QtCore import (QCoreApplication,
                           QVariant)
-
+from PyQt5.QtWidgets import QMessageBox
 
 from qgis.core import (QgsProcessing,
     QgsFeatureSink,
@@ -73,6 +73,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
     def processAlgorithm(self, parameters, context, feedback):
 
+        self.parameters = parameters
+        self.context = context
         self.feedback = feedback
 
         col_separator = self.parameterAsString(parameters, self.SEPARATOR, context)
@@ -83,63 +85,77 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         # QgsMessageLog.logMessage(str(file_path), "DigitransitGeocoder", Qgis.Info)
 
         try:
-            with open(file_path, 'r') as csv_file:
-
-                address_field_name_tokens = address_field_names_string.split(',')
-                address_field_names = []
-                for address_field_name_token in address_field_name_tokens:
-                    address_field_name = address_field_name_token.lstrip(' ').rstrip(' ')
-                    address_field_names.append(address_field_name)
-
-                # Use the header row for feature field names
-                header_row = next(csv_file)
-                columns = header_row.rstrip().split(col_separator)
-                # QgsMessageLog.logMessage(str(columns), "DigitransitGeocoder", Qgis.Info)
-                fields = QgsFields()
-                for index, column in enumerate(columns):
-                    fields.append(QgsField(column, QVariant.String))
-
-                    for address_field_name in address_field_names:
-                        if column == address_field_name:
-                            self.address_field_indices.append(index)
-                            break
-
-                # Add the Digitransit.fi
-                fields.append(QgsField("digitransit_confidence", QVariant.Double))
-                fields.append(QgsField("digitransit_accuracy", QVariant.String))
-                fields.append(QgsField("digitransit_layer", QVariant.String))
-                fields.append(QgsField("digitransit_source", QVariant.String))
-                fields.append(QgsField("digitransit_name", QVariant.String))
-                fields.append(QgsField("digitransit_localadmin", QVariant.String))
-                fields.append(QgsField("digitransit_locality", QVariant.String))
-                fields.append(QgsField("digitransit_postalcode", QVariant.Int))
-                fields.append(QgsField("digitransit_region", QVariant.String))
-                fields.append(QgsField("digitransit_digitransit_query", QVariant.String))
-
-                # QgsMessageLog.logMessage(str(fields.toList()), "DigitransitGeocoder", Qgis.Info)
-                # QgsMessageLog.logMessage(str(QgsWkbTypes.Point), "DigitransitGeocoder", Qgis.Info)
-
-                (self.sink, self.dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
-                                                                 context, fields, QgsWkbTypes.Point,
-                                                                 QgsCoordinateReferenceSystem(4326))
-
-                # QgsMessageLog.logMessage("Created sink", "DigitransitGeocoder", Qgis.Info)
-
-                self.csv_rows = []
-
-                for row in csv_file:
-                    values = row.strip('\n').split(col_separator)
-                    # QgsMessageLog.logMessage(str(values), "DigitransitGeocoder", Qgis.Info)
-
-                    self.csv_rows.append(values)
-
-                self.geocode_csv_rows(self.csv_rows)
-
+            self.read_csv_data(file_path, 'utf-8', col_separator, address_field_names_string)
         except IOError as e:
-            QgsMessageLog.logMessage(str(e), "DigitransitGeocoder", Qgis.Critical)
+            QgsMessageLog.logMessage(type(e).__name__ +': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
+        except UnicodeDecodeError as e:
+            QgsMessageLog.logMessage(type(e).__name__ +': ' + str(e), "DigitransitGeocoder", Qgis.Info)
+            try:
+                self.read_csv_data(file_path, 'iso-8859-1', col_separator, address_field_names_string)
+            except IOError as e:
+                QgsMessageLog.logMessage(type(e).__name__ +': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
+            except UnicodeDecodeError as e:
+                QMessageBox.information(
+                    None,
+                    self.tr('Unknown CSV file encoding'),
+                    self.tr('Please, provide the CSV file in UTF-8 or ISO-8859-1 format.'))
+                return
 
+        self.geocode_csv_rows(self.csv_rows)
 
         return {self.OUTPUT: self.dest_id}
+
+    def read_csv_data(self, file_path, file_encoding, col_separator, address_field_names_string):
+        with open(file_path, 'r', encoding=file_encoding) as csv_file:
+
+            address_field_name_tokens = address_field_names_string.split(',')
+            address_field_names = []
+            for address_field_name_token in address_field_name_tokens:
+                address_field_name = address_field_name_token.lstrip(' ').rstrip(' ')
+                address_field_names.append(address_field_name)
+
+            # Use the header row for feature field names
+            header_row = next(csv_file)
+            columns = header_row.rstrip().split(col_separator)
+            # QgsMessageLog.logMessage(str(columns), "DigitransitGeocoder", Qgis.Info)
+            fields = QgsFields()
+            for index, column in enumerate(columns):
+                fields.append(QgsField(column, QVariant.String))
+
+                for address_field_name in address_field_names:
+                    if column == address_field_name:
+                        self.address_field_indices.append(index)
+                        break
+
+            # Add the Digitransit.fi
+            fields.append(QgsField("digitransit_confidence", QVariant.Double))
+            fields.append(QgsField("digitransit_accuracy", QVariant.String))
+            fields.append(QgsField("digitransit_layer", QVariant.String))
+            fields.append(QgsField("digitransit_source", QVariant.String))
+            fields.append(QgsField("digitransit_name", QVariant.String))
+            fields.append(QgsField("digitransit_localadmin", QVariant.String))
+            fields.append(QgsField("digitransit_locality", QVariant.String))
+            fields.append(QgsField("digitransit_postalcode", QVariant.Int))
+            fields.append(QgsField("digitransit_region", QVariant.String))
+            fields.append(QgsField("digitransit_digitransit_query", QVariant.String))
+
+            # QgsMessageLog.logMessage(str(fields.toList()), "DigitransitGeocoder", Qgis.Info)
+            # QgsMessageLog.logMessage(str(QgsWkbTypes.Point), "DigitransitGeocoder", Qgis.Info)
+
+            (self.sink, self.dest_id) = self.parameterAsSink(self.parameters, self.OUTPUT,
+                                                             self.context, fields, QgsWkbTypes.Point,
+                                                             QgsCoordinateReferenceSystem(4326))
+
+            # QgsMessageLog.logMessage("Created sink", "DigitransitGeocoder", Qgis.Info)
+
+            self.csv_rows = []
+
+            for row in csv_file:
+                values = row.strip('\n').split(col_separator)
+                # QgsMessageLog.logMessage(str(values), "DigitransitGeocoder", Qgis.Info)
+
+                self.csv_rows.append(values)
+
 
     def geocode_csv_rows(self, rows):
         self.total_geocode_count = len(rows)
