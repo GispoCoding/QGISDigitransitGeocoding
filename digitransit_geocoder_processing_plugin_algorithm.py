@@ -119,12 +119,6 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 # QgsMessageLog.logMessage(str(fields.toList()), "DigitransitGeocoder", Qgis.Info)
                 # QgsMessageLog.logMessage(str(QgsWkbTypes.Point), "DigitransitGeocoder", Qgis.Info)
 
-                self.layer = QgsVectorLayer("Point?crs=EPSG:4326", "geocoding result layer", "memory")
-                self.provider = self.layer.dataProvider()
-                self.layer.startEditing()
-                self.provider.addAttributes(fields)
-                self.features = []
-
                 (self.sink, self.dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
                                                                  context, fields, QgsWkbTypes.Point,
                                                                  QgsCoordinateReferenceSystem(4326))
@@ -143,6 +137,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
         except IOError as e:
             QgsMessageLog.logMessage(str(e), "DigitransitGeocoder", Qgis.Critical)
+
 
         return {self.OUTPUT: self.dest_id}
 
