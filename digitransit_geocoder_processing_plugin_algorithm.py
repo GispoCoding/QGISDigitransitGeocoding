@@ -7,31 +7,35 @@
 import json
 import urllib
 import urllib.parse
+from pathlib import Path
 
 from PyQt5.QtCore import (QCoreApplication,
                           QVariant)
 from PyQt5.QtWidgets import QMessageBox
 
 from qgis.core import (QgsProcessing,
-    QgsFeatureSink,
-    QgsProcessingAlgorithm,
-    QgsProcessingParameterFile,
-    QgsProcessingParameterString,
-    QgsWkbTypes,
-    QgsProcessingParameterFeatureSink,
-    Qgis,
-    QgsMessageLog,
-    QgsFields,
-    QgsField,
-    QgsFeature,
-    QgsCoordinateReferenceSystem,
-    QgsVectorLayer,
-    QgsGeometry,
-    QgsPointXY)
+                       QgsFeatureSink,
+                       QgsProcessingAlgorithm,
+                       QgsProcessingParameterFile,
+                       QgsProcessingParameterString,
+                       QgsWkbTypes,
+                       QgsProcessingParameterFeatureSink,
+                       Qgis,
+                       QgsMessageLog,
+                       QgsFields,
+                       QgsField,
+                       QgsFeature,
+                       QgsCoordinateReferenceSystem,
+                       QgsVectorLayer,
+                       QgsGeometry,
+                       QgsPointXY)
+
+
+class DigitransitGeocoderPluginAlgorithmError(Exception):
+    pass
 
 
 class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
-
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
     SEPARATOR = 'SEPARATOR'
@@ -86,76 +90,241 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
         try:
             self.read_csv_data(file_path, 'utf-8', col_separator, address_field_names_string)
-        except IOError as e:
-            QgsMessageLog.logMessage(type(e).__name__ +': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
-        except UnicodeDecodeError as e:
-            QgsMessageLog.logMessage(type(e).__name__ +': ' + str(e), "DigitransitGeocoder", Qgis.Info)
-            try:
-                self.read_csv_data(file_path, 'iso-8859-1', col_separator, address_field_names_string)
-            except IOError as e:
-                QgsMessageLog.logMessage(type(e).__name__ +': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
-            except UnicodeDecodeError as e:
-                QMessageBox.information(
-                    None,
-                    self.tr('Unknown CSV file encoding'),
-                    self.tr('Please, provide the CSV file in UTF-8 or ISO-8859-1 format.'))
-                return
+        except DigitransitGeocoderPluginAlgorithmError:
+            QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
+            return
 
         self.geocode_csv_rows(self.csv_rows)
 
         return {self.OUTPUT: self.dest_id}
 
     def read_csv_data(self, file_path, file_encoding, col_separator, address_field_names_string):
-        with open(file_path, 'r', encoding=file_encoding) as csv_file:
 
-            address_field_name_tokens = address_field_names_string.split(',')
-            address_field_names = []
-            for address_field_name_token in address_field_name_tokens:
-                address_field_name = address_field_name_token.lstrip(' ').rstrip(' ')
-                address_field_names.append(address_field_name)
+        # Let's try to use csvt-file (see https://giswiki.hsr.ch/GeoCSV) if one exists
+        col_data_types = []
+        try:
+            with open(file_path + 't', 'r', encoding=file_encoding) as csvt_file:
+                types_row = next(csvt_file)
+                types_tokens = types_row.rstrip().split(',')
+                for type_token in types_tokens:
+                    col_data_types.append(type_token.strip(' ').strip('"').lower())
+        except IOError as e:
+            if not Path(file_path + 't').exists():
+                QgsMessageLog.logMessage(
+                    self.tr("No CSVT file present, using the string type for all columns."),
+                    "DigitransitGeocoder", Qgis.Info)
+            else:
+                QgsMessageLog.logMessage(
+                    self.tr("Error while accessing the CSVT file, using the string type for all columns."),
+                    "DigitransitGeocoder",
+                    Qgis.Warning)
 
-            # Use the header row for feature field names
-            header_row = next(csv_file)
-            columns = header_row.rstrip().split(col_separator)
-            # QgsMessageLog.logMessage(str(columns), "DigitransitGeocoder", Qgis.Info)
-            fields = QgsFields()
-            for index, column in enumerate(columns):
-                fields.append(QgsField(column, QVariant.String))
+        # QgsMessageLog.logMessage(str(col_data_types), "DigitransitGeocoder", Qgis.Info)
 
-                for address_field_name in address_field_names:
-                    if column == address_field_name:
-                        self.address_field_indices.append(index)
-                        break
+        try:
+            with open(file_path, 'r', encoding=file_encoding) as csv_file:
 
-            # Add the Digitransit.fi
-            fields.append(QgsField("digitransit_confidence", QVariant.Double))
-            fields.append(QgsField("digitransit_accuracy", QVariant.String))
-            fields.append(QgsField("digitransit_layer", QVariant.String))
-            fields.append(QgsField("digitransit_source", QVariant.String))
-            fields.append(QgsField("digitransit_name", QVariant.String))
-            fields.append(QgsField("digitransit_localadmin", QVariant.String))
-            fields.append(QgsField("digitransit_locality", QVariant.String))
-            fields.append(QgsField("digitransit_postalcode", QVariant.Int))
-            fields.append(QgsField("digitransit_region", QVariant.String))
-            fields.append(QgsField("digitransit_digitransit_query", QVariant.String))
+                address_field_name_tokens = address_field_names_string.split(',')
+                address_field_names = []
+                for address_field_name_token in address_field_name_tokens:
+                    address_field_name = address_field_name_token.lstrip(' ').rstrip(' ')
+                    address_field_names.append(address_field_name)
 
-            # QgsMessageLog.logMessage(str(fields.toList()), "DigitransitGeocoder", Qgis.Info)
-            # QgsMessageLog.logMessage(str(QgsWkbTypes.Point), "DigitransitGeocoder", Qgis.Info)
+                # Use the header row for feature field names
+                header_row = next(csv_file)
+                columns = header_row.rstrip().split(col_separator)
+                # QgsMessageLog.logMessage(str(columns), "DigitransitGeocoder", Qgis.Info)
+                # QgsMessageLog.logMessage("len(col_data_types):" + str(len(col_data_types)), "DigitransitGeocoder", Qgis.Info)
+                # QgsMessageLog.logMessage("len(columns):" + str(len(columns)), "DigitransitGeocoder", Qgis.Info)
 
-            (self.sink, self.dest_id) = self.parameterAsSink(self.parameters, self.OUTPUT,
-                                                             self.context, fields, QgsWkbTypes.Point,
-                                                             QgsCoordinateReferenceSystem(4326))
+                if len(col_data_types) > 0 and len(col_data_types) != len(columns):
+                    # self.iface.messageBar().pushMessage(
+                    #    self.tr("CSVT file problem"),
+                    #    self.tr("CSVT file present but it has different count of columns than the CSV file, using the string type."),
+                    #    QgsMessageBar.WARNING,
+                    #    10)
+                    QgsMessageLog.logMessage(
+                        self.tr(
+                            "CSVT file present but it has different count of columns than the CSV file, using the string type for all columns."),
+                        "DigitransitGeocoder", Qgis.Warning)
+                # QgsMessageLog.logMessage(str(columns), "DigitransitGeocoder", Qgis.Info)
+                fields = QgsFields()
+                for index, column in enumerate(columns):
+                    if len(col_data_types) == len(columns):
+                        self.add_layer_data_field_with_type(index, col_data_types, column, fields)
+                    else:
+                        fields.append(QgsField(column, QVariant.String))
 
-            # QgsMessageLog.logMessage("Created sink", "DigitransitGeocoder", Qgis.Info)
+                    for address_field_name in address_field_names:
+                        if column == address_field_name:
+                            self.address_field_indices.append(index)
+                            break
 
-            self.csv_rows = []
+                # Add the Digitransit.fi
+                fields.append(QgsField("digitransit_confidence", QVariant.Double))
+                fields.append(QgsField("digitransit_accuracy", QVariant.String))
+                fields.append(QgsField("digitransit_layer", QVariant.String))
+                fields.append(QgsField("digitransit_source", QVariant.String))
+                fields.append(QgsField("digitransit_name", QVariant.String))
+                fields.append(QgsField("digitransit_localadmin", QVariant.String))
+                fields.append(QgsField("digitransit_locality", QVariant.String))
+                fields.append(QgsField("digitransit_postalcode", QVariant.Int))
+                fields.append(QgsField("digitransit_region", QVariant.String))
+                fields.append(QgsField("digitransit_digitransit_query", QVariant.String))
 
-            for row in csv_file:
-                values = row.strip('\n').split(col_separator)
-                # QgsMessageLog.logMessage(str(values), "DigitransitGeocoder", Qgis.Info)
+                # QgsMessageLog.logMessage(str(fields.toList()), "DigitransitGeocoder", Qgis.Info)
+                # QgsMessageLog.logMessage(str(QgsWkbTypes.Point), "DigitransitGeocoder", Qgis.Info)
 
-                self.csv_rows.append(values)
+                (self.sink, self.dest_id) = self.parameterAsSink(self.parameters, self.OUTPUT,
+                                                                 self.context, fields, QgsWkbTypes.Point,
+                                                                 QgsCoordinateReferenceSystem(4326))
 
+                # QgsMessageLog.logMessage("Created sink", "DigitransitGeocoder", Qgis.Info)
+
+                self.csv_rows = []
+
+                for row in csv_file:
+                    values = row.strip('\n').split(col_separator)
+                    # QgsMessageLog.logMessage(str(values), "DigitransitGeocoder", Qgis.Info)
+
+                    self.csv_rows.append(values)
+        except IOError as e:
+            QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
+            raise DigitransitGeocoderPluginAlgorithmError()
+        except UnicodeDecodeError as e:
+            QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Info)
+            try:
+                self.read_csv_data(file_path, 'iso-8859-1', col_separator, address_field_names_string)
+            except IOError as e:
+                QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
+                raise DigitransitGeocoderPluginAlgorithmError()
+            except UnicodeDecodeError as e:
+                QMessageBox.information(
+                    None,
+                    self.tr('Unknown CSV file encoding'),
+                    self.tr('Please, provide the CSV file in UTF-8 or ISO-8859-1 format.'))
+                raise DigitransitGeocoderPluginAlgorithmError()
+
+    def add_layer_data_field_with_type(self, index, col_data_types, column, fields):
+        col_data_type = col_data_types[index]
+        if col_data_type.startswith('string'):
+            length = 255
+
+            if col_data_type != 'string':
+                success = True
+                start = col_data_type.find('(') + 1
+                if start != -1:
+                    end = col_data_type.find(')', start)
+                    if end != -1:
+                        try:
+                            length = int(col_data_type[start:end])
+                        except ValueError:
+                            success = False
+                    else:
+                        success = False
+                else:
+                    success = False
+
+                if not success:
+                    QgsMessageLog.logMessage(self.tr("CSVT file has column that has unknown type: ") + \
+                                             col_data_types[index] + self.tr(", using the string type."),
+                                             "DigitransitGeocoder", Qgis.Warning)
+
+            fields.append(QgsField(column, QVariant.String, len=length))
+
+        elif col_data_type.startswith('integer'):
+            length = -1
+
+            if col_data_type != 'integer':
+                success = True
+                start = col_data_type.find('(') + 1
+                if start != -1:
+                    end = col_data_type.find(')', start)
+                    if end != -1:
+                        if col_data_type[start:end] == 'boolean' or col_data_type[start:end].startswith('int'):
+                            QgsMessageLog.logMessage(self.tr("Integer subtypes not supported, using the general integer type."),
+                                                     "DigitransitGeocoder", Qgis.Warning)
+                            fields.append(QgsField(column, QVariant.Int, len=length))
+                        else:
+                            try:
+                                length = int(col_data_type[start:end])
+                            except ValueError:
+                                success = False
+                    else:
+                        success = False
+                else:
+                    success = False
+
+                if not success:
+                    QgsMessageLog.logMessage(self.tr("CSVT file has column that has unknown type: ") + \
+                                             col_data_types[index] + self.tr(", using the string type."),
+                                             "DigitransitGeocoder", Qgis.Warning)
+                    fields.append(QgsField(column, QVariant.String))
+                else:
+                    fields.append(QgsField(column, QVariant.Int, len=length))
+            else:
+                fields.append(QgsField(column, QVariant.Int, len=length))
+
+        elif col_data_type.startswith('real'):
+            length = 20
+            precision = 5
+
+            if col_data_type != 'real':
+                success = True
+                start = col_data_type.find('(') + 1
+                if start != -1:
+                    end = col_data_type.find(')', start)
+                    if end != -1:
+                        if col_data_type[start:end].startswith('float'):
+                            QgsMessageLog.logMessage(
+                                self.tr("Real subtypes not supported, using the general real type with length 20, precision 5."),
+                                "DigitransitGeocoder", Qgis.Warning)
+                            fields.append(QgsField(column, QVariant.Double, len=length))
+                        else:
+                            try:
+                                col_data_type_tokens = col_data_type[start:end].split('.')
+                                length = int(col_data_type_tokens[0])
+                                precision = int(col_data_type_tokens[1])
+                            except ValueError:
+                                success = False
+                    else:
+                        success = False
+                else:
+                    success = False
+
+                if not success:
+                    QgsMessageLog.logMessage(self.tr("CSVT file has column that has unknown type: ") + \
+                                             col_data_types[index] + self.tr(", using the string type."),
+                                             "DigitransitGeocoder", Qgis.Warning)
+                    fields.append(QgsField(column, QVariant.String))
+                else:
+                    fields.append(QgsField(column, QVariant.Double, len=length, prec=precision))
+            else:
+                fields.append(QgsField(column, QVariant.Double, len=length, prec=precision))
+
+        elif col_data_type == 'date':
+            fields.append(QgsField(column, QVariant.Date))
+        elif col_data_type == 'time':
+            fields.append(QgsField(column, QVariant.Time))
+        elif col_data_type == 'datetime':
+            fields.append(QgsField(column, QVariant.DateTime))
+        elif col_data_type == 'wkt' or col_data_type == 'point(x/y)':
+            fields.append(QgsField(column, QVariant.String))
+        elif col_data_type == 'coordx' or col_data_type == 'coordy':
+            fields.append(QgsField(column, QVariant.Double))
+        elif col_data_type == 'point(x)' or col_data_type == 'point(y)':
+            fields.append(QgsField(column, QVariant.Double))
+        else:
+            # self.iface.messageBar().pushMessage(
+            #    self.tr("CSVT file problem"),
+            #    self.tr("CSVT file has column that has unknown type: ") + \
+            #    col_data_types[index] + self.tr(", using the string type."),
+            #    QgsMessageBar.WARNING,
+            #    10)
+            QgsMessageLog.logMessage(self.tr("CSVT file has column that has unknown type: ") + \
+                                     col_data_types[index] + self.tr(", using the string type."),
+                                     "DigitransitGeocoder", Qgis.Warning)
+            fields.append(QgsField(column, QVariant.String))
 
     def geocode_csv_rows(self, rows):
         self.total_geocode_count = len(rows)
