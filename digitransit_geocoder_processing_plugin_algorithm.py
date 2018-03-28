@@ -183,11 +183,18 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
                 self.csv_rows = []
 
-                for row in csv_file:
+                for row_index, row in enumerate(csv_file):
                     values = row.strip('\n').split(col_separator)
                     # QgsMessageLog.logMessage(str(values), "DigitransitGeocoder", Qgis.Info)
-
-                    self.csv_rows.append(values)
+                    if len(values) != len(columns):
+                        QgsMessageLog.logMessage(
+                            self.tr("The CSV row " + \
+                                str(row_index + 1) + \
+                                " does not have same count of columns as the header row, skipping this row"),
+                            "DigitransitGeocoder",
+                            Qgis.Warning)
+                    else:
+                        self.csv_rows.append(values)
         except IOError as e:
             QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
             raise DigitransitGeocoderPluginAlgorithmError()
