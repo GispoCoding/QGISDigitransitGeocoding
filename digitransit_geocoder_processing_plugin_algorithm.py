@@ -140,6 +140,10 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 header_row = next(csv_file)
                 header_columns = header_row.rstrip().split(col_separator)
 
+                if len(header_columns) == 1:
+                    self.feedback.pushInfo(
+                        self.tr("Using the separator ") + col_separator + self.tr(" and there is only one column in the CSV file."))
+
                 header_columns = self.checkHeader(header_columns, address_field_names)
 
                 # QgsMessageLog.logMessage(str(columns), "DigitransitGeocoder", Qgis.Info)
