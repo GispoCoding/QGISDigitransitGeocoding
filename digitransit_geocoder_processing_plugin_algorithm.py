@@ -52,6 +52,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     SOURCE_NLS = 'SOURCE_NLS'
 
     MAX_NUMBER_OF_SEARCH_RESULTS = 'MAX_NUMBER_OF_SEARCH_RESULTS'
+    MAX_NUMBER_OF_SEARCH_RESULT_ROWS = 'MAX_NUMBER_OF_SEARCH_RESULT_ROWS'
 
     LOCATION_TYPE_STREET = 'LOCATION_TYPE_STREET'
     LOCATION_TYPE_VENUE = 'LOCATION_TYPE_VENUE'
@@ -122,8 +123,18 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterNumber(
                 self.MAX_NUMBER_OF_SEARCH_RESULTS,
-                self.tr('Number of the locations to search (may affect result accuracy)'),
+                self.tr('Number of the locations to search (may affect also result accuracy)'),
                 defaultValue=10,
+                minValue=1,
+                maxValue=40
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.MAX_NUMBER_OF_SEARCH_RESULT_ROWS,
+                self.tr('Max number of result rows per CSV row (<= number of the locations to search)'),
+                defaultValue=1,
                 minValue=1,
                 maxValue=40
             )
@@ -195,6 +206,12 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         self.use_source_NLS = self.parameterAsBool(parameters, self.SOURCE_NLS, context)
 
         self.max_n_of_search_results = self.parameterAsInt(parameters, self.MAX_NUMBER_OF_SEARCH_RESULTS, context)
+        max_n_of_search_result_rows = self.parameterAsInt(parameters, self.MAX_NUMBER_OF_SEARCH_RESULT_ROWS, context)
+        self.max_n_of_search_result_rows = \
+            max_n_of_search_result_rows \
+                if max_n_of_search_result_rows <= self.max_n_of_search_results \
+                else self.max_n_of_search_results
+
 
         self.use_location_type_street = self.parameterAsBool(parameters, self.LOCATION_TYPE_STREET, context)
         self.use_location_type_venue = self.parameterAsBool(parameters, self.LOCATION_TYPE_VENUE, context)
@@ -205,6 +222,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         # QgsMessageLog.logMessage(str(file_path), "DigitransitGeocoder", Qgis.Info)
 
         try:
+            self.feedback.pushInfo(
+                self.tr("Trying to read the CSV file in UTF-8 format."))
             self.read_csv_data(file_path, 'utf-8', col_separator, address_field_names_string)
         except DigitransitGeocoderPluginAlgorithmError as e:
             QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
@@ -333,6 +352,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         except UnicodeDecodeError as e:
             QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Info)
             try:
+                self.feedback.pushInfo(
+                    self.tr("Trying to read the CSV file in ISO-8859-1 format."))
                 self.read_csv_data(file_path, 'iso-8859-1', col_separator, address_field_names_string)
             except IOError as e:
                 QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
@@ -600,7 +621,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
             search_URL = base_URL + query_string
             if self.bounds != None:
-                search_URL + self.bounds
+                search_URL += self.bounds
 
             QgsMessageLog.logMessage(search_URL, "DigitransitGeocoder", Qgis.Info)
 
@@ -613,68 +634,75 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
             self.geocode_count += 1
 
-            if len(geocoding_result['features']) > 0:
-                feature = geocoding_result['features'][0]  # We use only the feature with the highest confidence value
+            n_of_features = len(geocoding_result['features'])
+
+            if n_of_features > 0:
+                n_of_search_result_rows = \
+                    self.max_n_of_search_result_rows \
+                        if n_of_features >= self.max_n_of_search_result_rows \
+                        else n_of_features
+
+                for feature in geocoding_result['features'][:n_of_search_result_rows]:
+
+                    qgs_feature = QgsFeature()
+                    lon = feature['geometry']['coordinates'][0]
+                    lat = feature['geometry']['coordinates'][1]
+                    qgs_feature.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(lon, lat)))
+
+                    values = list(row)
+
+                    # also add a few of the geocoding result feature properties if available
+                    properties = feature['properties']
+                    confidence = -1
+                    if 'confidence' in properties:
+                        confidence = properties['confidence']
+                    values.append(confidence)
+                    accuracy = ''
+                    if 'accuracy' in properties:
+                        accuracy = properties['accuracy']
+                    values.append(accuracy)
+                    layer = ''
+                    if 'layer' in properties:
+                        layer = properties['layer']
+                    values.append(layer)
+                    source = ''
+                    if 'source' in properties:
+                        source = properties['source']
+                    values.append(source)
+                    name = ''
+                    if 'name' in properties:
+                        name = properties['name']
+                    values.append(name)
+                    localadmin = ''
+                    if 'localadmin' in properties:
+                        localadmin = properties['localadmin']
+                    values.append(localadmin)
+                    locality = ''
+                    if 'locality' in properties:
+                        locality = properties['locality']
+                    values.append(locality)
+                    postalcode = -1
+                    if 'postalcode' in properties:
+                        postalcode = properties['postalcode']
+                    values.append(postalcode)
+                    region = ''
+                    if 'region' in properties:
+                        region = properties['region']
+                    values.append(region)
+                    values.append(search_URL)
+
+                    qgs_feature.setAttributes(values)
+
+                    # Add a feature in the sink
+                    self.sink.addFeature(qgs_feature, QgsFeatureSink.FastInsert)
+
+                    # QgsMessageLog.logMessage("Added a feature", "DigitransitGeocode    r", Qgis.Info)
+
             else:
                 self.feedback.pushInfo(
                     self.tr("Geocode not succesful for the address: ") + address)
                 QgsMessageLog.logMessage(self.tr("Geocode not succesful for the address: ") + address, "DigitransitGeocoder",
                                          Qgis.Warning)
-                return
-
-            qgs_feature = QgsFeature()
-            lon = feature['geometry']['coordinates'][0]
-            lat = feature['geometry']['coordinates'][1]
-            qgs_feature.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(lon, lat)))
-
-            values = list(row)
-
-            # also add a few of the geocoding result feature properties if available
-            properties = feature['properties']
-            confidence = -1
-            if 'confidence' in properties:
-                confidence = properties['confidence']
-            values.append(confidence)
-            accuracy = ''
-            if 'accuracy' in properties:
-                accuracy = properties['accuracy']
-            values.append(accuracy)
-            layer = ''
-            if 'layer' in properties:
-                layer = properties['layer']
-            values.append(layer)
-            source = ''
-            if 'source' in properties:
-                source = properties['source']
-            values.append(source)
-            name = ''
-            if 'name' in properties:
-                name = properties['name']
-            values.append(name)
-            localadmin = ''
-            if 'localadmin' in properties:
-                localadmin = properties['localadmin']
-            values.append(localadmin)
-            locality = ''
-            if 'locality' in properties:
-                locality = properties['locality']
-            values.append(locality)
-            postalcode = -1
-            if 'postalcode' in properties:
-                postalcode = properties['postalcode']
-            values.append(postalcode)
-            region = ''
-            if 'region' in properties:
-                region = properties['region']
-            values.append(region)
-            values.append(search_URL)
-
-            qgs_feature.setAttributes(values)
-
-            # Add a feature in the sink
-            self.sink.addFeature(qgs_feature, QgsFeatureSink.FastInsert)
-
-            # QgsMessageLog.logMessage("Added a feature", "DigitransitGeocode    r", Qgis.Info)
 
             # Update the progress bar
             self.feedback.setProgress(int(self.geocode_count * (100.0 / self.total_geocode_count)))
