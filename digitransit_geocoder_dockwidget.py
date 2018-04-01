@@ -16,7 +16,7 @@
 import os
 
 from PyQt5 import QtGui, QtWidgets, uic
-from PyQt5.QtCore import pyqtSignal, QMetaObject, pyqtSlot, QVariant
+from PyQt5.QtCore import pyqtSignal, QMetaObject, pyqtSlot, QVariant, QCoreApplication
 from PyQt5.QtWidgets import QMessageBox
 from qgis.core import Qgis, QgsMessageLog
 from PyQt5.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
@@ -47,20 +47,11 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     closingPlugin = pyqtSignal()
 
     def __init__(self, iface,
-                 no_source_title,
-                 no_source_message,
-                 no_locations_title,
-                 no_locations_message,
                  parent=None):
         """Constructor."""
         super(DigitransitGeocoderDockWidget, self).__init__(parent)
 
         self.iface = iface
-
-        self.no_source_title = no_source_title
-        self.no_source_message = no_source_message
-        self.no_locations_title = no_locations_title
-        self.no_locations_message = no_locations_message
 
         # Set up the user interface from Designer.
         # After setupUI you can access any designer object by doing
@@ -163,8 +154,8 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             search_URL = search_URL + sources.rstrip(',')
         else:
             QMessageBox.information(self.iface.mainWindow(),
-                                    self.no_source_title,
-                                    self.no_source_message)
+                                    self.tr(u'No data sources selected'),
+                                    self.tr(u'Please, select at least one data source'))
             return
 
         if self.checkBoxSearchAddress.isChecked() or self.checkBoxSearchVenue.isChecked() or self.checkBoxSearchStreet.isChecked():
@@ -178,12 +169,12 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             search_URL = search_URL + layers.rstrip(',')
         else:
             QMessageBox.information(self.iface.mainWindow(),
-                                    self.no_locations_title,
-                                    self.no_locations_message)
+                                    self.tr(u'No types of locations selected'),
+                                    self.tr(u'Please, select at least one type of location to search'))
             return
 
         if self.checkBoxSearchMapCanvasArea.isChecked():
-            extent = self.iface.mapCanvas().extent()
+            extent = self.iface.mapCanvas().extent() # QgsRectangle
             min_lon = extent.xMinimum()
             min_lat = extent.yMinimum()
             max_lon = extent.xMaximum()
@@ -410,3 +401,6 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     def on_radioButtonResultsShowSelected_toggled(self):
         QSettings().setValue("/DigitransitGeocoder/showSelectedResultOnMap",
                              self.radioButtonResultsShowSelected.isChecked())
+
+    def tr(self, string):
+        return QCoreApplication.translate('DigitransitGeocoderDockWidget', string)
