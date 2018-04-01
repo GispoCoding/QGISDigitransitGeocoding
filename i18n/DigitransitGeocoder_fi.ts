@@ -4,32 +4,55 @@
 <context>
     <name>DigitransitGeocoder</name>
     <message>
-        <location filename="../digitransit_geocoder.py" line="196"/>
+        <location filename="../digitransit_geocoder.py" line="191"/>
         <source>&amp;Digitransit.fi Geocoder</source>
         <translation>&amp;Digitransit.fi-geokoodaus</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder.py" line="169"/>
+        <location filename="../digitransit_geocoder.py" line="164"/>
         <source>Geocode a Finnish address</source>
         <translation>Geokoodaa suomalainen osoite</translation>
     </message>
     <message>
         <location filename="../digitransit_geocoder.py" line="70"/>
         <source>No data sources selected</source>
-        <translation>Aineistolähteitä ei ole valittu</translation>
+        <translation type="obsolete">Aineistolähteitä ei ole valittu</translation>
     </message>
     <message>
         <location filename="../digitransit_geocoder.py" line="71"/>
         <source>Please, select at least one data source</source>
-        <translation>Valitse ainakin yksi tietolähde</translation>
+        <translation type="obsolete">Valitse ainakin yksi tietolähde</translation>
     </message>
     <message>
         <location filename="../digitransit_geocoder.py" line="72"/>
         <source>No types of locations selected</source>
-        <translation>Sijaintityyppejä ei ole valittu</translation>
+        <translation type="obsolete">Sijaintityyppejä ei ole valittu</translation>
     </message>
     <message>
         <location filename="../digitransit_geocoder.py" line="73"/>
+        <source>Please, select at least one type of location to search</source>
+        <translation type="obsolete">Valitse ainakin yksi sijaintityyppi</translation>
+    </message>
+</context>
+<context>
+    <name>DigitransitGeocoderDockWidget</name>
+    <message>
+        <location filename="../digitransit_geocoder_dockwidget.py" line="156"/>
+        <source>No data sources selected</source>
+        <translation>Tietolähteitä ei ole valittu</translation>
+    </message>
+    <message>
+        <location filename="../digitransit_geocoder_dockwidget.py" line="156"/>
+        <source>Please, select at least one data source</source>
+        <translation>Valitse ainakin yksi tietolähde</translation>
+    </message>
+    <message>
+        <location filename="../digitransit_geocoder_dockwidget.py" line="171"/>
+        <source>No types of locations selected</source>
+        <translation>Sijaintityyppejä ei ole valittu</translation>
+    </message>
+    <message>
+        <location filename="../digitransit_geocoder_dockwidget.py" line="171"/>
         <source>Please, select at least one type of location to search</source>
         <translation>Valitse ainakin yksi sijaintityyppi</translation>
     </message>
@@ -165,174 +188,194 @@
 <context>
     <name>DigitransitGeocoderPluginAlgorithm</name>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="64"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="67"/>
         <source>Input CSV file</source>
         <translation>Geokoodattava CSV-tiedosto</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="72"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="75"/>
         <source>Column separator</source>
         <translation>Sarake-erotin</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="80"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="83"/>
         <source>Address field name(s) as a comma separated list</source>
         <translation>Osoitekenttien nimet pilkuin eroteltuna listana</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="88"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="91"/>
         <source>Extent of the search area, in EPSG:4326 if unspecified</source>
         <translation>Hakualueen rajat, oletuksena EPSG:4326-koordinaattijärjestelmä</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="96"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="99"/>
         <source>Use OpenAddress DB as a data source</source>
         <translation>Käytä OpenAddress-tietokantaa (VRK) tietolähteenä</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="104"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="107"/>
         <source>Use OpenStreetMap as a data source</source>
         <translation>Käytä OpenStreetMapia tietolähteenä</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="112"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="115"/>
         <source>Use National Land Survey places as a data source</source>
         <translation>Käytä Maanmittauslaitoksen maastotietokantaa tietolähteenä</translation>
     </message>
     <message>
         <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="120"/>
         <source>Number of the locations to search (may affect result accuracy)</source>
-        <translation>Haettavien sijaintien määrä (voi vaikuttaa tulosten tarkkuuteen)</translation>
+        <translation type="obsolete">Haettavien sijaintien määrä (voi vaikuttaa tulosten tarkkuuteen)</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="130"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="143"/>
         <source>Search streets</source>
         <translation>Hae katuja</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="138"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="151"/>
         <source>Search venues</source>
         <translation>Hae paikkoja ja tapahtumapaikkoja</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="146"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="159"/>
         <source>Search addresses</source>
         <translation>Hae osoitteita</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="154"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="167"/>
         <source>Output layer</source>
         <translation>Tulostaso</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="230"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="250"/>
         <source>No CSVT file present, using the string type for all columns.</source>
         <translation>CSVT-tiedostoa ei ole, käytetään merkkijonotyyppiä kaikille sarakkeille.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="237"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="257"/>
         <source>Error while accessing the CSVT file, using the string type for all columns.</source>
         <translation>CSVT-tietodoston käsittelyssä tapahtui virhe, käytetään merkkijonotyyppiä kaikille sarakkeille.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="258"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="278"/>
         <source>Using the separator </source>
         <translation>Käytetään </translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="258"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="278"/>
         <source> and there is only one column in the CSV file.</source>
         <translation> erottimena ja CSV-tiedoston otsikkoriviltä löytyi vain yksi saraje.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="268"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="288"/>
         <source>CSVT file present but it has different count of columns than the CSV file, using the string type.</source>
         <translation>CSVT-tiedosto on olemassa, mutta siinä on eri määrä sarakkeita kuin CSV-tiedostossa, käytetään vain merkkijonotyyppiä kaikille sarakkeille.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="270"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="290"/>
         <source>CSVT file present but it has different count of columns than the CSV file, using the string type for all columns.</source>
         <translation>CSVT-tiedosto on olemassa, mutta siinä on eri määrä sarakkeita kuin CSV-tiedostossa, käytetään vain merkkijonotyyppiä kaikille sarakkeille.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="318"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="338"/>
         <source>The CSV row </source>
         <translation>CSV-tiedoston rivillä </translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="318"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="338"/>
         <source> does not have same count of columns as the header row, skipping this row.</source>
         <translation> ei ole samaa määrää sarakkeita kuin otsikkorivillä, ohitetaan tämä rivi.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="337"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="359"/>
         <source>Cannot read the CSV file.</source>
         <translation>CSV-tiedoston lukemisessa tapahtui odottamaton virhe.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="341"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="363"/>
         <source>Please, provide the CSV file in UTF-8 or ISO-8859-1 format.</source>
         <translation>Ole hyvä ja käytä CSV-tiedostossa UTF-8- tai ISO-8859-1-merkistöä.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="346"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="368"/>
         <source>Unknown CSV file encoding. Please, provide the CSV file in UTF-8 or ISO-8859-1 format.</source>
         <translation>CSV-tiedostolla on tuntematon merkistö. Ole hyvä ja käytä UTF-8- tai ISO-8859-1-merkistöä.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="359"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="381"/>
         <source>Header has columns with equal names, adding an extra identifier in a column name.</source>
         <translation>CSV-tiedoston otsikkorivillä on sarakkeita, joilla on samat nimet, lisätään lisätunniste sarakkeelle.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="394"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="416"/>
         <source>An address field name that you specified is not in the CSV headers.</source>
         <translation>Prosessointiin syötteenä antamasi kentän nimeä ei ole CSV-tiedoston otsikkokentän nimenä.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="539"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="561"/>
         <source>CSVT file has column that has unknown type: </source>
         <translation>CSVT-tiedostossa on sarake, jolla on tuntematon tyyppi: </translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="539"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="561"/>
         <source>, using the string type.</source>
         <translation> , käytetään merkkijontyyppiä.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="446"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="468"/>
         <source>Integer subtypes not supported, using the general integer type.</source>
         <translation>Kokonaisluvun alityyppejä ei tueta, käytetään yleistä kokonaislukutyyppiä.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="487"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="509"/>
         <source>Real subtypes not supported, using the general real type with length 20, precision 5.</source>
         <translation>Liukuluvun (real) alityyppejä ei tueta, käytetään yleistä liukulukutyyppiä.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="577"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="599"/>
         <source>No data sources selected. Please, select at least one data source.</source>
         <translation>Tietolähteitä ei ole valittu. Ole hyvä ja valitse ainakin yksi tietolähde.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="596"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="618"/>
         <source>No types of locations to search selected. Please, select at least one of the streets, venues and addresses.</source>
         <translation>Sijaintityyppejä ei ole valittu. Ole hyvä ja valitse ainakin yksi sijaintityyppi.</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="622"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="713"/>
         <source>Geocode not succesful for the address: </source>
         <translation>Geokoodaus ei onnistunut osoitteelle: </translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="697"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="727"/>
         <source>Geocode addresses in a CSV file</source>
         <translation>Geokoodaa CSV-tiedoston sijainteja</translation>
     </message>
     <message>
-        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="700"/>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="730"/>
         <source>Geocode</source>
         <translation>Geokoodaus</translation>
+    </message>
+    <message>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="123"/>
+        <source>Number of the locations to search (may affect also result accuracy)</source>
+        <translation>Haettavien sijaintien määrä (voi vaikuttaa myös tulosten tarkkuuteen)</translation>
+    </message>
+    <message>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="133"/>
+        <source>Max number of result rows per CSV row (&lt;= number of the locations to search)</source>
+        <translation>Suurin mahdollinen tulosrivimäärä kutakin CSV-riviä kohti (&lt;= haettavien sijaintien määrä)</translation>
+    </message>
+    <message>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="224"/>
+        <source>Trying to read the CSV file in UTF-8 format.</source>
+        <translation>Yritetään lukea CSV-tiedosto UTF-8 -merkistöllä.</translation>
+    </message>
+    <message>
+        <location filename="../digitransit_geocoder_processing_plugin_algorithm.py" line="354"/>
+        <source>Trying to read the CSV file in ISO-8859-1 format.</source>
+        <translation>Yritetään lukea CSV-tiedosto ISO-8859-1 -merkistöllä.</translation>
     </message>
 </context>
 <context>
