@@ -13,9 +13,6 @@ class DigitransitProcessingPluginProvider(QgsProcessingProvider):
     def __init__(self):
         QgsProcessingProvider.__init__(self)
 
-        # Load algorithms
-        self.alglist = [DigitransitGeocoderPluginAlgorithm()]
-
     def unload(self):
         """
         Unloads the provider. Any tear-down steps required by the provider
@@ -27,7 +24,11 @@ class DigitransitProcessingPluginProvider(QgsProcessingProvider):
         """
         Loads all algorithms belonging to this provider.
         """
-        for alg in self.alglist:
+
+        # Load algorithms
+        alglist = [DigitransitGeocoderPluginAlgorithm()]
+
+        for alg in alglist:
             self.addAlgorithm( alg )
 
     def id(self):

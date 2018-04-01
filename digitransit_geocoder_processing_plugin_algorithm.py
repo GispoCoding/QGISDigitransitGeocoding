@@ -8,16 +8,20 @@ import json
 import urllib
 import urllib.parse
 from pathlib import Path
+import os
 
 from PyQt5.QtCore import (QCoreApplication,
                           QVariant)
-from PyQt5.QtWidgets import QMessageBox
 
 from qgis.core import (QgsProcessing,
                        QgsFeatureSink,
                        QgsProcessingAlgorithm,
                        QgsProcessingParameterFile,
                        QgsProcessingParameterString,
+                       QgsProcessingParameterBoolean,
+                       QgsProcessingParameterCrs,
+                       QgsProcessingParameterExtent,
+                       QgsProcessingParameterNumber,
                        QgsWkbTypes,
                        QgsProcessingParameterFeatureSink,
                        Qgis,
@@ -40,9 +44,24 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     INPUT = 'INPUT'
     SEPARATOR = 'SEPARATOR'
     ADDRESS_FIELD_NAMES = 'ADDRESS_FIELD_NAMES'
+
+    SEARCH_EXTENT = 'SEARCH_EXTENT'
+
+    SOURCE_OSM = 'SOURCE_OSM'
+    SOURCE_OA = 'SOURCE_OA'
+    SOURCE_NLS = 'SOURCE_NLS'
+
+    MAX_NUMBER_OF_SEARCH_RESULTS = 'MAX_NUMBER_OF_SEARCH_RESULTS'
+
+    LOCATION_TYPE_STREET = 'LOCATION_TYPE_STREET'
+    LOCATION_TYPE_VENUE = 'LOCATION_TYPE_VENUE'
+    LOCATION_TYPE_ADDRESS = 'LOCATION_TYPE_ADDRESS'
+
     address_field_indices = []
 
     def initAlgorithm(self, config=None):
+
+        self.translator = None
 
         self.addParameter(
             QgsProcessingParameterFile(
@@ -69,6 +88,72 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         )
 
         self.addParameter(
+            QgsProcessingParameterExtent(
+                self.SEARCH_EXTENT,
+                self.tr('Extent of the search area, in EPSG:4326 if unspecified'),
+                optional=True
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.SOURCE_OA,
+                self.tr('Use OpenAddress DB as a data source'),
+                True
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.SOURCE_OSM,
+                self.tr('Use OpenStreetMap as a data source'),
+                True
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.SOURCE_NLS,
+                self.tr('Use National Land Survey places as a data source'),
+                True
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterNumber(
+                self.MAX_NUMBER_OF_SEARCH_RESULTS,
+                self.tr('Number of the locations to search (may affect result accuracy)'),
+                defaultValue=10,
+                minValue=1,
+                maxValue=40
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.LOCATION_TYPE_STREET,
+                self.tr('Search streets'),
+                True
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.LOCATION_TYPE_VENUE,
+                self.tr('Search venues'),
+                True
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                self.LOCATION_TYPE_ADDRESS,
+                self.tr('Search addresses'),
+                True
+            )
+        )
+
+        self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.OUTPUT,
                 self.tr('Output layer')
@@ -83,6 +168,37 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
         col_separator = self.parameterAsString(parameters, self.SEPARATOR, context)
         address_field_names_string = self.parameterAsString(parameters, self.ADDRESS_FIELD_NAMES, context)
+
+        extent = self.parameterAsExtent(parameters, self.SEARCH_EXTENT, context,
+                                        QgsCoordinateReferenceSystem(4326))  # QgsRectangle
+        # QgsMessageLog.logMessage(str(extent), "DigitransitGeocoder", Qgis.Info)
+
+        min_lon = extent.xMinimum()
+        min_lat = extent.yMinimum()
+        max_lon = extent.xMaximum()
+        max_lat = extent.yMaximum()
+        #QgsMessageLog.logMessage(str(min_lon), "DigitransitGeocoder", Qgis.Info)
+        #QgsMessageLog.logMessage(str(min_lat), "DigitransitGeocoder", Qgis.Info)
+        #QgsMessageLog.logMessage(str(max_lon), "DigitransitGeocoder", Qgis.Info)
+        #QgsMessageLog.logMessage(str(max_lat), "DigitransitGeocoder", Qgis.Info)
+
+        if min_lon < max_lon and min_lat < max_lat:
+            self.bounds = "&boundary.rect.min_lon=" + str(min_lon) + \
+                     "&boundary.rect.min_lat=" + str(min_lat) + \
+                     "&boundary.rect.max_lon=" + str(max_lon) + \
+                     "&boundary.rect.max_lat=" + str(max_lat)
+        else:
+            self.bounds = None
+
+        self.use_source_OA = self.parameterAsBool(parameters, self.SOURCE_OA, context)
+        self.use_source_OSM = self.parameterAsBool(parameters, self.SOURCE_OSM, context)
+        self.use_source_NLS = self.parameterAsBool(parameters, self.SOURCE_NLS, context)
+
+        self.max_n_of_search_results = self.parameterAsInt(parameters, self.MAX_NUMBER_OF_SEARCH_RESULTS, context)
+
+        self.use_location_type_street = self.parameterAsBool(parameters, self.LOCATION_TYPE_STREET, context)
+        self.use_location_type_venue = self.parameterAsBool(parameters, self.LOCATION_TYPE_VENUE, context)
+        self.use_location_type_address = self.parameterAsBool(parameters, self.LOCATION_TYPE_ADDRESS, context)
 
         file_path = self.parameterAsFile(parameters, self.INPUT, context)
 
@@ -180,7 +296,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 fields.append(QgsField("digitransit_locality", QVariant.String))
                 fields.append(QgsField("digitransit_postalcode", QVariant.Int))
                 fields.append(QgsField("digitransit_region", QVariant.String))
-                fields.append(QgsField("digitransit_digitransit_query", QVariant.String))
+                fields.append(QgsField("digitransit_query", QVariant.String))
 
                 # QgsMessageLog.logMessage(str(fields.toList()), "DigitransitGeocoder", Qgis.Info)
                 # QgsMessageLog.logMessage(str(QgsWkbTypes.Point), "DigitransitGeocoder", Qgis.Info)
@@ -211,6 +327,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                         self.csv_rows.append(values)
         except IOError as e:
             QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
+            self.feedback.reportError(
+                self.tr("Cannot read the CSV file."))
             raise DigitransitGeocoderPluginAlgorithmError()
         except UnicodeDecodeError as e:
             QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Info)
@@ -218,6 +336,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 self.read_csv_data(file_path, 'iso-8859-1', col_separator, address_field_names_string)
             except IOError as e:
                 QgsMessageLog.logMessage(type(e).__name__ + ': ' + str(e), "DigitransitGeocoder", Qgis.Critical)
+                self.feedback.reportError(
+                    self.tr("Cannot read the CSV file."))
                 raise DigitransitGeocoderPluginAlgorithmError()
             except UnicodeDecodeError as e:
                 QgsMessageLog.logMessage(self.tr('Please, provide the CSV file in UTF-8 or ISO-8859-1 format.'), "DigitransitGeocoder", Qgis.Critical)
@@ -428,7 +548,6 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         self.geocode_count = 0
 
         for row in rows:
-
             # Create search text (address) based on the address fields specified by the user
             address = ''
             for index in self.address_field_indices:
@@ -439,13 +558,49 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
             search_parameters = {
                 'text': address,
-                # 'sources': 'oa',
-                'size': 50
+                'size': self.max_n_of_search_results
             }
+
+            if self.use_source_OA or self.use_source_OSM or self.use_source_NLS:
+                sources = ""
+                if self.use_source_NLS:
+                    sources = sources + "nlsfi,"
+                if self.use_source_OA:
+                    sources = sources + "oa,"
+                if self.use_source_OSM:
+                    sources = sources + "osm,"
+                sources = sources.rstrip(',')
+                search_parameters['sources'] = sources
+            else:
+                QgsMessageLog.logMessage(self.tr('No data sources selected. Please, select at least one data source.'),
+                                         "DigitransitGeocoder", Qgis.Critical)
+                self.feedback.reportError(
+                    self.tr("No data sources selected. Please, select at least one data source."))
+                raise DigitransitGeocoderPluginAlgorithmError()
+
+            if self.use_location_type_address or self.use_location_type_venue or self.use_location_type_street:
+                layers = ""
+                if self.use_location_type_address:
+                    layers = layers + "address,"
+                if self.use_location_type_venue:
+                    layers = layers + "venue,"
+                if self.use_location_type_street:
+                    layers = layers + "street,"
+                layers = layers.rstrip(',')
+                search_parameters['layers'] = layers
+            else:
+                QgsMessageLog.logMessage(
+                    self.tr('No types of locations to search selected. Please, select at least one of the streets, venues and addresses.'),
+                    "DigitransitGeocoder", Qgis.Critical)
+                self.feedback.reportError(
+                    self.tr("No types of locations to search selected. Please, select at least one of the streets, venues and addresses."))
+                raise DigitransitGeocoderPluginAlgorithmError()
 
             query_string = urllib.parse.urlencode(search_parameters)
 
             search_URL = base_URL + query_string
+            if self.bounds != None:
+                search_URL + self.bounds
 
             QgsMessageLog.logMessage(search_URL, "DigitransitGeocoder", Qgis.Info)
 
@@ -462,8 +617,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 feature = geocoding_result['features'][0]  # We use only the feature with the highest confidence value
             else:
                 self.feedback.pushInfo(
-                    self.tr("Geocode not succesful for address: ") + address)
-                QgsMessageLog.logMessage(self.tr("Geocode not succesful for address: ") + address, "DigitransitGeocoder",
+                    self.tr("Geocode not succesful for the address: ") + address)
+                QgsMessageLog.logMessage(self.tr("Geocode not succesful for the address: ") + address, "DigitransitGeocoder",
                                          Qgis.Warning)
                 return
 
@@ -540,7 +695,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         return 'geocoding'
 
     def tr(self, string):
-        return QCoreApplication.translate('Processing', string)
+        return QCoreApplication.translate('DigitransitGeocoderPluginAlgorithm', string)
 
     def createInstance(self):
         return DigitransitGeocoderPluginAlgorithm()
