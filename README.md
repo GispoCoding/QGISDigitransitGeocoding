@@ -12,7 +12,9 @@ QGIS 3 plugin that is meant for searching and geocoding Finnish places and addre
 
 ## Käyttö
 
-Lisäosan ajo onnistuu Lisäosat-valikosta: Lisäosat | Digitransit.fi-geokoodaus | Geokoodaa suomalainen osoite. Käyttöliittymän oikeaan osaan aukeaa paneeli, jonka "Osoite"-kenttään voi kirjoittaa osoitteen tai osoitteen osan. Hae-painikkeella haetaan ja listataan osoitteita ja paikkoja. Riippuen asetuksista, hakutulokset lisätään myös suoraan karttatasoksi. Paneelin alaosan setuksista voi myös säätää muita hakuehtoja.
+Käyttöön on kaksi mahdollisuutta:
+1. Lisäosan ajo yksittäisten osoitteiden geokoodamiseksi onnistuu Lisäosat-valikosta: Lisäosat | Digitransit.fi-geokoodaus | Geokoodaa suomalainen osoite. Käyttöliittymän oikeaan osaan aukeaa paneeli, jonka "Osoite"-kenttään voi kirjoittaa osoitteen tai osoitteen osan. Hae-painikkeella haetaan ja listataan osoitteita ja paikkoja. Riippuen asetuksista, hakutulokset lisätään myös suoraan karttatasoksi. Paneelin alaosan setuksista voi myös säätää muita hakuehtoja.
+2. Jos sinulla on CSV-tiedosto, joka sisältää paikkoja/osoitteita, niin voit geokoodata ne käyttämällä lisäosan prosessointi-ominaisuutta, joka löytyy QGIS:n prosessointityökalujen alta.
 
 ## Aineistolähteet
 
