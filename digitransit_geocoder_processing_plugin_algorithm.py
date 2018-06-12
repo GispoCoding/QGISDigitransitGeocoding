@@ -84,7 +84,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterString(
                 self.ADDRESS_FIELD_NAMES,
                 self.tr('Address field name(s) as a comma separated list'),
-                'Laitoksen sijaintiosoite, Laitoksen sijaintikunta'
+                self.tr('For example: street address, municipality')
             )
         )
 
