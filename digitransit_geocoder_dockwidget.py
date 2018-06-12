@@ -298,6 +298,9 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         qgs_feature.setGeometry(QgsGeometry.fromPointXY(QgsPointXY(lon, lat)))
         properties = feature['properties']
 
+        name = ''
+        if 'name' in properties:
+            name = properties['name']
         locality = ''
         locality_gid = ''
         if 'locality' in properties:
@@ -313,6 +316,14 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if 'postalcode' in properties:
             postalcode = properties['postalcode']
             postalcode_gid = properties['postalcode_gid']
+        country = ''
+        country_gid = ''
+        if 'country' in properties:
+            country = properties['country']
+            country_gid = properties['country_gid']
+        country_a = ''
+        if 'country_a' in properties:
+            country_a = properties['country_a']
         region = ''
         region_gid = ''
         if 'region' in properties:
@@ -323,20 +334,23 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if 'localadmin' in properties:
             localadmin = properties['localadmin']
             localadmin_gid = properties['localadmin_gid']
+        label = ''
+        if 'label' in properties:
+            label = properties['label']
 
         qgs_feature.setAttributes([properties['id'],
                                    properties['gid'],
                                    properties['layer'],
                                    properties['source'],
                                    properties['source_id'],
-                                   properties['name'],
+                                   name,
                                    postalcode,
                                    postalcode_gid,
                                    properties['confidence'],
                                    properties['accuracy'],
-                                   properties['country'],
-                                   properties['country_gid'],
-                                   properties['country_a'],
+                                   country,
+                                   country_gid,
+                                   country_a,
                                    region,
                                    region_gid,
                                    localadmin,
@@ -345,7 +359,7 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                                    locality_gid,
                                    neighbourhood,
                                    neighbourhood_gid,
-                                   properties['label']
+                                   label
                                    ])
 
         return qgs_feature

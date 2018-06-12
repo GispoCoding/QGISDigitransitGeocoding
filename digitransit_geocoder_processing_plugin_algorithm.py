@@ -80,11 +80,12 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             )
         )
 
+        default_address_value = self.tr('For example: street address, municipality')
         self.addParameter(
             QgsProcessingParameterString(
                 self.ADDRESS_FIELD_NAMES,
                 self.tr('Address field name(s) as a comma separated list'),
-                self.tr('For example: street address, municipality')
+                default_address_value
             )
         )
 
@@ -306,16 +307,30 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                             break
 
                 # Add the Digitransit.fi
+                fields.append(QgsField("digitransit_id", QVariant.String))
+                fields.append(QgsField("digitransit_gid", QVariant.String))
                 fields.append(QgsField("digitransit_confidence", QVariant.Double))
                 fields.append(QgsField("digitransit_accuracy", QVariant.String))
                 fields.append(QgsField("digitransit_layer", QVariant.String))
                 fields.append(QgsField("digitransit_source", QVariant.String))
+                fields.append(QgsField("digitransit_source_id", QVariant.String))
                 fields.append(QgsField("digitransit_name", QVariant.String))
                 fields.append(QgsField("digitransit_localadmin", QVariant.String))
+                fields.append(QgsField("digitransit_localadmin_gid", QVariant.String))
                 fields.append(QgsField("digitransit_locality", QVariant.String))
+                fields.append(QgsField("digitransit_locality_gid", QVariant.String))
                 fields.append(QgsField("digitransit_postalcode", QVariant.Int))
+                fields.append(QgsField("digitransit_postalcode_gid", QVariant.String))
                 fields.append(QgsField("digitransit_region", QVariant.String))
+                fields.append(QgsField("digitransit_region_gid", QVariant.String))
+                fields.append(QgsField("digitransit_country", QVariant.String))
+                fields.append(QgsField("digitransit_country_gid", QVariant.String))
+                fields.append(QgsField("digitransit_country_a", QVariant.String))
+                fields.append(QgsField("digitransit_neighbourhood", QVariant.String))
+                fields.append(QgsField("digitransit_neighbourhood_gid", QVariant.String))
+                fields.append(QgsField("digitransit_label", QVariant.String))
                 fields.append(QgsField("digitransit_query", QVariant.String))
+
 
                 # QgsMessageLog.logMessage(str(fields.toList()), "DigitransitGeocoder", Qgis.Info)
                 # QgsMessageLog.logMessage(str(QgsWkbTypes.Point), "DigitransitGeocoder", Qgis.Info)
@@ -653,6 +668,11 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
                     # also add a few of the geocoding result feature properties if available
                     properties = feature['properties']
+                    values.append(properties['id']) # digitransit_id
+                    gid = ''
+                    if 'gid' in properties:
+                        gid = properties['gid']
+                    values.append(gid)
                     confidence = -1
                     if 'confidence' in properties:
                         confidence = properties['confidence']
@@ -669,6 +689,10 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                     if 'source' in properties:
                         source = properties['source']
                     values.append(source)
+                    source_id = ''
+                    if 'source_id' in properties:
+                        source_id = properties['source_id']
+                    values.append(source_id)
                     name = ''
                     if 'name' in properties:
                         name = properties['name']
@@ -677,18 +701,58 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                     if 'localadmin' in properties:
                         localadmin = properties['localadmin']
                     values.append(localadmin)
+                    localadmin_gid = ''
+                    if 'localadmin_gid' in properties:
+                        localadmin_gid = properties['localadmin_gid']
+                    values.append(localadmin_gid)
                     locality = ''
                     if 'locality' in properties:
                         locality = properties['locality']
                     values.append(locality)
+                    locality_gid = ''
+                    if 'locality_gid' in properties:
+                        locality_gid = properties['locality_gid']
+                    values.append(locality_gid)
                     postalcode = -1
                     if 'postalcode' in properties:
                         postalcode = properties['postalcode']
                     values.append(postalcode)
+                    postalcode_gid = ''
+                    if 'postalcode_gid' in properties:
+                        postalcode_gid = properties['postalcode_gid']
+                    values.append(postalcode_gid)
                     region = ''
                     if 'region' in properties:
                         region = properties['region']
                     values.append(region)
+                    region_gid = ''
+                    if 'region_gid' in properties:
+                        region_gid = properties['region_gid']
+                    values.append(region_gid)
+                    country = ''
+                    if 'country' in properties:
+                        country = properties['country']
+                    values.append(country)
+                    country_gid = ''
+                    if 'country_gid' in properties:
+                        country_gid = properties['country_gid']
+                    values.append(country_gid)
+                    country_a = ''
+                    if 'country_a' in properties:
+                        country_a = properties['country_a']
+                    values.append(country_a)
+                    neighbourhood = ''
+                    if 'neighbourhood' in properties:
+                        neighbourhood = properties['neighbourhood']
+                    values.append(neighbourhood)
+                    neighbourhood_gid = ''
+                    if 'neighbourhood_gid' in properties:
+                        neighbourhood_gid = properties['neighbourhood_gid']
+                    values.append(neighbourhood_gid)
+                    label = ''
+                    if 'label' in properties:
+                        label = properties['label']
+                    values.append(label)
                     values.append(search_URL)
 
                     qgs_feature.setAttributes(values)
