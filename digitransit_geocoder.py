@@ -23,6 +23,7 @@ from .resources import *
 from .digitransit_geocoder_dockwidget import DigitransitGeocoderDockWidget
 from .digitransit_geocoder_processing_plugin_provider import DigitransitProcessingPluginProvider
 import os.path
+import resources_rc
 
 
 class DigitransitGeocoder:
@@ -161,7 +162,7 @@ class DigitransitGeocoder:
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
-        icon_path = 'https://github.com/GispoCoding/QGISDigitransitGeocoding/blob/master/icon.png'
+        icon_path = ':/plugins/DigitransitGeocoder/icon.png'
         self.add_action(
             icon_path,
             text=self.tr(u'Geocode a Finnish address'),
