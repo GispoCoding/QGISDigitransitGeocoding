@@ -18,7 +18,7 @@ from PyQt5.QtWidgets import QAction
 from qgis.core import QgsApplication
 
 # Initialize Qt resources from file resources.py
-from .resources import *
+#from .resources import *
 # Import the code for the dialog
 from .digitransit_geocoder_dockwidget import DigitransitGeocoderDockWidget
 from .digitransit_geocoder_processing_plugin_provider import DigitransitProcessingPluginProvider
