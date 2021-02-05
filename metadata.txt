@@ -31,7 +31,7 @@ changelog=0.6 - Added support for plugin download via ZIP
 # Tags are comma separated with spaces allowed
 tags=geocoding, Finland
 
-homepage=https://github.com/GispoCoding/QGISDigitransitGeocoding
+homepage=https://www.gispo.fi/
 category=Plugins
 icon=icon.png
 # experimental flag
