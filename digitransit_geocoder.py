@@ -146,7 +146,8 @@ class DigitransitGeocoder:
             action.setWhatsThis(whats_this)
 
         if add_to_toolbar:
-            self.toolbar.addAction(action)
+            # Adds plugin icon to Plugins toolbar
+            self.iface.addToolBarIcon(action)
 
         if add_to_menu:
             self.iface.addPluginToMenu(

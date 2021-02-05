@@ -102,4 +102,4 @@ ENV/
 
 *~
 .idea
-resources.py
+#resources.py
