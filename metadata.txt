@@ -1,20 +1,28 @@
 # This file contains metadata for your plugin. Since 
 # version 2.0 of QGIS this is the proper way to supply 
 # information about a plugin. The old method of 
-# embedding metadata in __init__.py will 
+# embedding metadata in __init__.py
 # is no longer supported since version 2.0.
 
-# This file should be included when you package your plugin.# Mandatory items:
+# This file should be included when you package your plugin.
 
+# Mandatory items:
 [general]
 name=Digitransit.fi Geocoder
 qgisMinimumVersion=3.0
 description=The plugin is meant for searching and geocoding Finnish addresses
-version=0.5
-author=Gispo, Ltd.
-email=erno@gispo.fi
+version=0.6
+author=Gispo Ltd.
+email=info@gispo.fi
 
-about=The plugin is meant for anyone who wants to use the <a href="https://digitransit.fi/">Digitransit.fi</a> geocoding API and capabilities for Finnish addresses and places in QGIS. Please, note that the data is from the <a href="http://www.maanmittauslaitos.fi/en/maps-and-spatial-data/expert-users/topographic-data-and-how-acquire-it">National Land Survey of Finland Topographic Database</a>, <a href="https://www.avoindata.fi/data/fi/dataset/rakennusten-osoitetiedot-koko-suomi">Population Register Centre of Finland</a> and <a href="https://www.openstreetmap.org">OpenStreetMap</a>. The National Land Survey (NLS.fi) and the Population Register Centre (via OpenAddresses) data are licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0 license</a>. The OpenStreetMap data is licensed under <a href="https://opendatacommons.org/licenses/odbl/">ODbL license</a>.
+about=The plugin is meant for anyone who wants to utilize the capabilities of <a href="https://digitransit.fi/">Digitransit.fi</a>
+geocoding API for searching and geocoding Finnish addresses / places in QGIS. Please, note that the data is from
+<a href="http://www.maanmittauslaitos.fi/en/maps-and-spatial-data/expert-users/topographic-data-and-how-acquire-it">National Land Survey of Finland Topographic Database</a>,
+<a href="https://www.avoindata.fi/data/fi/dataset/rakennusten-osoitetiedot-koko-suomi">Population Register Centre of Finland</a>
+and <a href="https://www.openstreetmap.org">OpenStreetMap</a>. The National Land Survey (NLS) and the Population
+Register Centre (via OpenAddresses) data are licensed under
+<a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0 license</a>. The OpenStreetMap data is licensed
+under <a href="https://opendatacommons.org/licenses/odbl/">ODbL license</a>.
 
 
 tracker=https://github.com/GispoCoding/QGISDigitransitGeocoding/issues
@@ -24,9 +32,9 @@ repository=https://github.com/GispoCoding/QGISDigitransitGeocoding
 # Recommended items:
 
 # Uncomment the following line and add your changelog:
-changelog=0.5 - UI fits better for smaller screens
+changelog=0.6 - Added support for plugin download via ZIP
+    0.5 - UI fits better for smaller screens
     0.4 - Added processing support
-
 
 # Tags are comma separated with spaces allowed
 tags=geocoding, Finland
@@ -35,7 +43,7 @@ homepage=https://github.com/GispoCoding/QGISDigitransitGeocoding
 category=Plugins
 icon=icon.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (applies to the whole plugin, not just a single version)
 deprecated=False
