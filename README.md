@@ -1,20 +1,18 @@
 # QGISDigitransitGeocoding
 
-This QGIS3 plugin is developed for searching and geocoding Finnish places and addresses.
+This QGIS plugin is developed for searching and geocoding Finnish places and addresses.
 It is based on <a href="https://digitransit.fi/">digitransit.fi</a> geocoding API that utilizes data from
 the <a href="https://www.maanmittauslaitos.fi/en">National Land Survey of Finland</a>,
 <a href="https://dvv.fi/en/individuals">Popularion Register Center of Finland</a> and
 <a href="https://www.openstreetmap.org/">OpenStreetMap</a>.
 
-The plugin is still in beta-development. Please report issues preferably to Issues or to tuki@gispo.fi.
+Please report issues preferably to Issues or to info@gispo.fi. The plugin is still is not actively developed, but if you want to support the development or request a feature, do not hesitate to contact us. 
 
 Developed by **Gispo Ltd**.
 
 ## Installation instructions
 
-1. Download the latest release zip from GitHub releases (above) either via Clone or Download ZIP.
-2. Launch QGIS and navigate to the plugins menu by selecting Plugins - Manage and Install Plugins from the top menu.
-3. Select the Install from ZIP tab, browse to the zip file you just downloaded, and click Install Plugin!
+Launch QGIS and navigate to the plugins menu by selecting Plugins - Manage and Install Plugins from the top menu.
 
 ## Usage
 
