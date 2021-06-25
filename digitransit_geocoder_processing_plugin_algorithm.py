@@ -84,7 +84,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterString(
                 self.ADDRESS_FIELD_NAMES,
-                self.tr('Address field name(s) as a comma separated list'),
+                self.tr('Address field name(s) as a comma or semicolon separated list'),
                 default_address_value
             )
         )
@@ -268,7 +268,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         try:
             with open(file_path, 'r', encoding=file_encoding) as csv_file:
 
-                address_field_name_tokens = address_field_names_string.split(',')
+                address_field_name_tokens = address_field_names_string.replace(';', ',').split(',')
                 address_field_names = []
                 for address_field_name_token in address_field_name_tokens:
                     address_field_name = address_field_name_token.lstrip(' \n').rstrip(' \n')
