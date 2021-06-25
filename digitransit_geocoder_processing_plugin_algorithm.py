@@ -271,11 +271,16 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 for address_field_name_token in address_field_name_tokens:
                     address_field_name = address_field_name_token.lstrip(' ').rstrip(' ')
                     address_field_names.append(address_field_name)
-
+                # QgsMessageLog.logMessage("address_field_names: {}".format(str(address_field_names)), "DigitransitGeocoder", Qgis.Info)
                 # Use the header row for feature field names
                 header_row = next(csv_file)
-                header_columns = header_row.rstrip().split(col_separator)
-
+                # QgsMessageLog.logMessage("header_row: {}".format(str(header_row)), "DigitransitGeocoder", Qgis.Info)
+                header_column_tokens = header_row.split(col_separator)
+                header_columns = []
+                for header_column_token in header_column_tokens:
+                    header_column = header_column_token.rstrip(' ').lstrip(' ')
+                    header_columns.append(header_column)
+                # QgsMessageLog.logMessage("header_columns: {}".format(str(header_columns)), "DigitransitGeocoder", Qgis.Info)
                 if len(header_columns) == 1:
                     self.feedback.pushInfo(
                         self.tr("Using the separator ") + col_separator + self.tr(" and there is only one column in the CSV file."))
@@ -415,6 +420,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                     checked_header_columns.append(col1)
         else:
             checked_header_columns = header_columns
+
+        # QgsMessageLog.logMessage("checked_header_columns: {}".format(str(checked_header_columns)), "DigitransitGeocoder", Qgis.Info)
 
         for address_field_name in address_field_names:
             found = False
