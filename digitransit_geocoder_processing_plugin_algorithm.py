@@ -58,11 +58,11 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     LOCATION_TYPE_VENUE = 'LOCATION_TYPE_VENUE'
     LOCATION_TYPE_ADDRESS = 'LOCATION_TYPE_ADDRESS'
 
-    address_field_indices = []
-
     def initAlgorithm(self, config=None):
 
         self.translator = None
+
+        self.address_field_indices = []
 
         self.addParameter(
             QgsProcessingParameterFile(
@@ -174,6 +174,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
     def processAlgorithm(self, parameters, context, feedback):
 
+        self.address_field_indices = []
+
         self.parameters = parameters
         self.context = context
         self.feedback = feedback
@@ -269,7 +271,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 address_field_name_tokens = address_field_names_string.split(',')
                 address_field_names = []
                 for address_field_name_token in address_field_name_tokens:
-                    address_field_name = address_field_name_token.lstrip(' ').rstrip(' ')
+                    address_field_name = address_field_name_token.lstrip(' \n').rstrip(' \n')
                     address_field_names.append(address_field_name)
                 # QgsMessageLog.logMessage("address_field_names: {}".format(str(address_field_names)), "DigitransitGeocoder", Qgis.Info)
                 # Use the header row for feature field names
@@ -278,7 +280,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 header_column_tokens = header_row.split(col_separator)
                 header_columns = []
                 for header_column_token in header_column_tokens:
-                    header_column = header_column_token.rstrip(' ').lstrip(' ')
+                    header_column = header_column_token.rstrip(' \n').lstrip(' \n')
                     header_columns.append(header_column)
                 # QgsMessageLog.logMessage("header_columns: {}".format(str(header_columns)), "DigitransitGeocoder", Qgis.Info)
                 if len(header_columns) == 1:
