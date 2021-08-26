@@ -58,11 +58,11 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     LOCATION_TYPE_VENUE = 'LOCATION_TYPE_VENUE'
     LOCATION_TYPE_ADDRESS = 'LOCATION_TYPE_ADDRESS'
 
-    address_field_indices = []
-
     def initAlgorithm(self, config=None):
 
         self.translator = None
+
+        self.address_field_indices = []
 
         self.addParameter(
             QgsProcessingParameterFile(
@@ -84,7 +84,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterString(
                 self.ADDRESS_FIELD_NAMES,
-                self.tr('Address field name(s) as a comma separated list'),
+                self.tr('Address field name(s) as a comma or semicolon separated list'),
                 default_address_value
             )
         )
@@ -173,6 +173,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         )
 
     def processAlgorithm(self, parameters, context, feedback):
+
+        self.address_field_indices = []
 
         self.parameters = parameters
         self.context = context
@@ -266,16 +268,21 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         try:
             with open(file_path, 'r', encoding=file_encoding) as csv_file:
 
-                address_field_name_tokens = address_field_names_string.split(',')
+                address_field_name_tokens = address_field_names_string.replace(';', ',').split(',')
                 address_field_names = []
                 for address_field_name_token in address_field_name_tokens:
-                    address_field_name = address_field_name_token.lstrip(' ').rstrip(' ')
+                    address_field_name = address_field_name_token.lstrip(' \n').rstrip(' \n')
                     address_field_names.append(address_field_name)
-
+                # QgsMessageLog.logMessage("address_field_names: {}".format(str(address_field_names)), "DigitransitGeocoder", Qgis.Info)
                 # Use the header row for feature field names
                 header_row = next(csv_file)
-                header_columns = header_row.rstrip().split(col_separator)
-
+                # QgsMessageLog.logMessage("header_row: {}".format(str(header_row)), "DigitransitGeocoder", Qgis.Info)
+                header_column_tokens = header_row.split(col_separator)
+                header_columns = []
+                for header_column_token in header_column_tokens:
+                    header_column = header_column_token.rstrip(' \n').lstrip(' \n')
+                    header_columns.append(header_column)
+                # QgsMessageLog.logMessage("header_columns: {}".format(str(header_columns)), "DigitransitGeocoder", Qgis.Info)
                 if len(header_columns) == 1:
                     self.feedback.pushInfo(
                         self.tr("Using the separator ") + col_separator + self.tr(" and there is only one column in the CSV file."))
@@ -415,6 +422,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                     checked_header_columns.append(col1)
         else:
             checked_header_columns = header_columns
+
+        # QgsMessageLog.logMessage("checked_header_columns: {}".format(str(checked_header_columns)), "DigitransitGeocoder", Qgis.Info)
 
         for address_field_name in address_field_names:
             found = False
