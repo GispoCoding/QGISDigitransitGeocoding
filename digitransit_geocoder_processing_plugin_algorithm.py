@@ -3,6 +3,9 @@
 # Created
 #  by Erno Mäkinen (erno@gispo.fi)
 #  on 24.3.2018
+# Modified
+# by Pauliina Mäkinen
+# on 10.02.2022
 
 import json
 import urllib
@@ -17,6 +20,7 @@ from qgis.core import (QgsFeatureSink,
                        QgsProcessingParameterFile,
                        QgsProcessingParameterString,
                        QgsProcessingParameterBoolean,
+                       QgsProcessingParameterEnum,
                        QgsProcessingParameterExtent,
                        QgsProcessingParameterNumber,
                        QgsWkbTypes,
@@ -38,8 +42,15 @@ class DigitransitGeocoderPluginAlgorithmError(Exception):
 class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
+    OTHER_SEPARATOR = 'OTHER_SEPARATOR'
     SEPARATOR = 'SEPARATOR'
     ADDRESS_FIELD_NAMES = 'ADDRESS_FIELD_NAMES'
+
+    SEPARATORS = [',',
+                 ';',
+                 ':',
+                 'Other'
+                 ]
 
     SEARCH_EXTENT = 'SEARCH_EXTENT'
 
@@ -56,6 +67,12 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
     def initAlgorithm(self, config=None):
 
+        self.separators = [',',
+                          ';',
+                          ':',
+                          self.tr('Other')
+                          ]
+
         self.translator = None
 
         self.address_field_indices = []
@@ -69,10 +86,19 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         )
 
         self.addParameter(
-            QgsProcessingParameterString(
+            QgsProcessingParameterEnum(
                 self.SEPARATOR,
                 self.tr('Column separator'),
-                ','
+                self.separators,
+                defaultValue=0
+            )
+        )
+
+        self.addParameter(
+            QgsProcessingParameterString(
+                self.OTHER_SEPARATOR,
+                self.tr('Other column separator'),
+                optional=True
             )
         )
 
@@ -174,7 +200,11 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         self.context = context
         self.feedback = feedback
 
-        col_separator = self.parameterAsString(parameters, self.SEPARATOR, context)
+        # Let's assign column separator character
+        if self.SEPARATORS[self.parameterAsEnum(parameters, self.SEPARATOR, context)] == 'Other':
+            col_separator = self.parameterAsString(parameters, self.OTHER_SEPARATOR, context)
+        else:
+            col_separator = self.SEPARATORS[self.parameterAsEnum(parameters, self.SEPARATOR, context)]
         address_field_names_string = self.parameterAsString(parameters, self.ADDRESS_FIELD_NAMES, context)
 
         extent = self.parameterAsExtent(parameters, self.SEARCH_EXTENT, context,
