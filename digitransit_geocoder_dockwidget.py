@@ -106,7 +106,7 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.horizontalSliderMinimumConfidenceValue.setValue(
             QSettings().value("/DigitransitGeocoder/minConfidenceValue",
                               DigitransitGeocoderDockWidget.DEFAULT_MINIMUM_CONFIDENCE_VALUE * 100,
-                              type=float))
+                              type=int))
         self.radioButtonResultsShowAll.setChecked(
             QSettings().value("/DigitransitGeocoder/showAllResultsOnMap",
                               DigitransitGeocoderDockWidget.DEFAULT_SHOW_ALL_RESULTS_ON_MAP,
