@@ -1,16 +1,34 @@
+# -*- coding: utf-8 -*-
+"""
+/***************************************************************************
+ DigitransitGeocoder
+                                 A QGIS plugin
+ The plugin is meant for geocoding Finnish addresses
+                              -------------------
+        begin                : 2018-02-20
+        git sha              : $Format:%H$
+        copyright            : (C) 2018 by Gispo, Ltd.
+        email                : erno@gispo.fi
+ ***************************************************************************/
+
+"""
 from typing import Callable, List, Optional
 
-from qgis.PyQt.QtCore import QCoreApplication, QTranslator
+from qgis.core import QgsApplication
+from qgis.PyQt.QtCore import QCoreApplication, Qt, QTranslator
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QWidget
 from qgis.utils import iface
 
-from QGISDigitransitGeocoding.qgis_plugin_tools.tools.custom_logging import (
-    setup_logger,
-    teardown_logger,
+from .core.digitransit_geocoder_processing_plugin_provider import (
+    DigitransitProcessingPluginProvider,
 )
-from QGISDigitransitGeocoding.qgis_plugin_tools.tools.i18n import setup_translation
-from QGISDigitransitGeocoding.qgis_plugin_tools.tools.resources import plugin_name
+from .qgis_plugin_tools.tools.custom_logging import setup_logger, teardown_logger
+from .qgis_plugin_tools.tools.i18n import setup_translation, tr
+from .qgis_plugin_tools.tools.resources import plugin_name
+
+# Import the code for the dialog
+from .ui.digitransit_geocoder_dockwidget import DigitransitGeocoderDockWidget
 
 
 class Plugin:
@@ -19,7 +37,14 @@ class Plugin:
     name = plugin_name()
 
     def __init__(self) -> None:
+        """Constructor.
+        :param iface: An interface instance that will be passed to this class
+        which provides the hook by which you can manipulate the QGIS
+        application at run time.
+        :type iface: QgsInterface
+        """
         setup_logger(Plugin.name)
+        self.dockwidget = DigitransitGeocoderDockWidget(iface)
 
         # initialize locale
         locale, file_path = setup_translation()
@@ -31,8 +56,15 @@ class Plugin:
         else:
             pass
 
+        # Declare instance attributes
         self.actions: List[QAction] = []
         self.menu = Plugin.name
+        self.toolbar = iface.addToolBar("DigitransitGeocoder")
+        self.toolbar.setObjectName("DigitransitGeocoder")
+
+        self.pluginIsActive = False
+
+        self.processing_provider = DigitransitProcessingPluginProvider()
 
     def add_action(
         self,
@@ -103,16 +135,23 @@ class Plugin:
     def initGui(self) -> None:  # noqa N802
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         self.add_action(
-            "",
-            text=Plugin.name,
+            (
+                ":/plugins/QGISDigitransitGeocoder/QGISDigitransitGeocoding"
+                "/resources/icons/icon.png"
+            ),
+            text=tr("Geocode a finnish address"),
             callback=self.run,
             parent=iface.mainWindow(),
-            add_to_toolbar=False,
         )
+
+        QgsApplication.processingRegistry().addProvider(self.processing_provider)
 
     def onClosePlugin(self) -> None:  # noqa N802
         """Cleanup necessary items here when plugin dockwidget is closed"""
-        pass
+        # Disconnects
+        self.dockwidget.closingPlugin.disconnect(self.onClosePlugin)
+
+        self.pluginIsActive = False
 
     def unload(self) -> None:
         """Removes the plugin menu item and icon from QGIS GUI."""
@@ -121,6 +160,19 @@ class Plugin:
             iface.removeToolBarIcon(action)
         teardown_logger(Plugin.name)
 
+        # Remove the toolbar
+        del self.toolbar
+
+        QgsApplication.processingRegistry().removeProvider(self.processing_provider)
+
     def run(self) -> None:
-        """Run method that performs all the real work"""
-        print("Hello QGIS plugin")
+        """Run method that performs all the real work aka loads and starts the plugin"""
+        if not self.pluginIsActive:
+            self.pluginIsActive = True
+
+            # Connect to provide cleanup on closing of dockwidget
+            self.dockwidget.closingPlugin.connect(self.onClosePlugin)
+
+            # Show the dockwidget
+            iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
+            self.dockwidget.show()
