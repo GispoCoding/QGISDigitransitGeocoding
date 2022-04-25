@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 /***************************************************************************
- DigitransitGeocoder
+ QGISDigitransitGeocoding
                                  A QGIS plugin
  The plugin is meant for geocoding Finnish addresses
                               -------------------
@@ -59,8 +59,8 @@ class Plugin:
         # Declare instance attributes
         self.actions: List[QAction] = []
         self.menu = Plugin.name
-        self.toolbar = iface.addToolBar("DigitransitGeocoder")
-        self.toolbar.setObjectName("DigitransitGeocoder")
+        self.toolbar = iface.addToolBar("QGISDigitransitGeocoding")
+        self.toolbar.setObjectName("QGISDigitransitGeocoding")
 
         self.pluginIsActive = False
 

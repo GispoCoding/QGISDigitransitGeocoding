@@ -61,7 +61,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     LOCATION_TYPE_VENUE = "LOCATION_TYPE_VENUE"
     LOCATION_TYPE_ADDRESS = "LOCATION_TYPE_ADDRESS"
 
-    def init_algorithm(self, config=None):
+    def initAlgorithm(self, config=None):  # noqa N802
 
         self.separators = [",", ";", ":", self.tr("Other")]
 
@@ -260,7 +260,9 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             )
         except DigitransitGeocoderPluginAlgorithmError as e:
             QgsMessageLog.logMessage(
-                type(e).__name__ + ": " + str(e), "DigitransitGeocoder", Qgis.Critical
+                type(e).__name__ + ": " + str(e),
+                "QGISDigitransitGeocoding",
+                Qgis.Critical,
             )
             return {self.OUTPUT: None}
 
@@ -291,7 +293,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                     self.tr(
                         "No CSVT file present, using the string type for all columns."
                     ),
-                    "DigitransitGeocoder",
+                    "QGISDigitransitGeocoding",
                     Qgis.Info,
                 )
             else:
@@ -306,7 +308,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                         "Error while accessing the CSVT file, using the string"
                         " type for all columns."
                     ),
-                    "DigitransitGeocoder",
+                    "QGISDigitransitGeocoding",
                     Qgis.Warning,
                 )
 
@@ -353,7 +355,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                             " of columns than the CSV file, using the string"
                             " type for all columns."
                         ),
-                        "DigitransitGeocoder",
+                        "QGISDigitransitGeocoding",
                         Qgis.Warning,
                     )
                 fields = QgsFields()
@@ -426,20 +428,22 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                                 " does not have same count of columns as"
                                 " the header row, skipping this row."
                             ),
-                            "DigitransitGeocoder",
+                            "QGISDigitransitGeocoding",
                             Qgis.Warning,
                         )
                     else:
                         self.csv_rows.append(values)
         except IOError as e:
             QgsMessageLog.logMessage(
-                type(e).__name__ + ": " + str(e), "DigitransitGeocoder", Qgis.Critical
+                type(e).__name__ + ": " + str(e),
+                "QGISDigitransitGeocoding",
+                Qgis.Critical,
             )
             self.feedback.reportError(self.tr("Cannot read the CSV file."))
             raise DigitransitGeocoderPluginAlgorithmError()
         except UnicodeDecodeError as e:
             QgsMessageLog.logMessage(
-                type(e).__name__ + ": " + str(e), "DigitransitGeocoder", Qgis.Info
+                type(e).__name__ + ": " + str(e), "QGISDigitransitGeocoding", Qgis.Info
             )
             try:
                 self.feedback.pushInfo(
@@ -451,7 +455,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             except IOError as e:
                 QgsMessageLog.logMessage(
                     type(e).__name__ + ": " + str(e),
-                    "DigitransitGeocoder",
+                    "QGISDigitransitGeocoding",
                     Qgis.Critical,
                 )
                 self.feedback.reportError(self.tr("Cannot read the CSV file."))
@@ -461,7 +465,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                     self.tr(
                         "Please, provide the CSV file in UTF-8 or" " ISO-8859-1 format."
                     ),
-                    "DigitransitGeocoder",
+                    "QGISDigitransitGeocoding",
                     Qgis.Critical,
                 )
                 self.feedback.reportError(
@@ -491,7 +495,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                     "Header has columns with equal names, adding"
                     " an extra identifier in a column name."
                 ),
-                "DigitransitGeocoder",
+                "QGISDigitransitGeocoding",
                 Qgis.Warning,
             )
 
@@ -520,7 +524,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                         "An address field name that you specified"
                         " is not in the CSV headers."
                     ),
-                    "DigitransitGeocoder",
+                    "QGISDigitransitGeocoding",
                     Qgis.Critical,
                 )
                 self.feedback.reportError(
@@ -570,7 +574,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                         self.tr("CSVT file has column that has unknown type: ")
                         + header_column_data_types[index]
                         + self.tr(", using the string type."),
-                        "DigitransitGeocoder",
+                        "QGISDigitransitGeocoding",
                         Qgis.Warning,
                     )
 
@@ -599,7 +603,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                                     "Integer subtypes not supported,"
                                     " using the general integer type."
                                 ),
-                                "DigitransitGeocoder",
+                                "QGISDigitransitGeocoding",
                                 Qgis.Warning,
                             )
                             fields.append(
@@ -625,7 +629,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                         self.tr("CSVT file has column that has unknown type: ")
                         + header_column_data_types[index]
                         + self.tr(", using the string type."),
-                        "DigitransitGeocoder",
+                        "QGISDigitransitGeocoding",
                         Qgis.Warning,
                     )
                     fields.append(QgsField(header_column, QVariant.String))
@@ -656,7 +660,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                                     "Real subtypes not supported, using the"
                                     " general real type with length 20, precision 5."
                                 ),
-                                "DigitransitGeocoder",
+                                "QGISDigitransitGeocoding",
                                 Qgis.Warning,
                             )
                             fields.append(
@@ -686,7 +690,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                         self.tr("CSVT file has column that has unknown type: ")
                         + header_column_data_types[index]
                         + self.tr(", using the string type."),
-                        "DigitransitGeocoder",
+                        "QGISDigitransitGeocoding",
                         Qgis.Warning,
                     )
                     fields.append(QgsField(header_column, QVariant.String))
@@ -723,7 +727,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 self.tr("CSVT file has column that has unknown type: ")
                 + header_column_data_types[index]
                 + self.tr(", using the string type."),
-                "DigitransitGeocoder",
+                "QGISDigitransitGeocoding",
                 Qgis.Warning,
             )
             fields.append(QgsField(header_column, QVariant.String))
@@ -760,7 +764,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                         "No data sources selected. Please, select"
                         " at least one data source."
                     ),
-                    "DigitransitGeocoder",
+                    "QGISDigitransitGeocoding",
                     Qgis.Critical,
                 )
                 self.feedback.reportError(
@@ -791,7 +795,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                         "No types of locations to search selected. Please, select"
                         " at least one of the streets, venues and addresses."
                     ),
-                    "DigitransitGeocoder",
+                    "QGISDigitransitGeocoding",
                     Qgis.Critical,
                 )
                 self.feedback.reportError(
@@ -808,7 +812,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             if self.bounds is not None:
                 search_url += self.bounds
 
-            QgsMessageLog.logMessage(search_url, "DigitransitGeocoder", Qgis.Info)
+            QgsMessageLog.logMessage(search_url, "QGISDigitransitGeocoding", Qgis.Info)
 
             r = urllib.request.urlopen(search_url)
             geocoding_result = json.loads(
@@ -941,7 +945,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 )
                 QgsMessageLog.logMessage(
                     self.tr("Geocode not succesful for the address: ") + address,
-                    "DigitransitGeocoder",
+                    "QGISDigitransitGeocoding",
                     Qgis.Warning,
                 )
 
@@ -952,13 +956,15 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
             if self.geocode_count == self.total_geocode_count:
                 QgsMessageLog.logMessage(
-                    "Finished geocoding the CSV file", "DigitransitGeocoder", Qgis.Info
+                    "Finished geocoding the CSV file",
+                    "QGISDigitransitGeocoding",
+                    Qgis.Info,
                 )
 
     def name(self):
         return "geocodecsv"
 
-    def display_name(self):
+    def displayName(self):  # noqa N802
         return self.tr("Geocode addresses in a CSV file")
 
     def group(self):
@@ -970,5 +976,5 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     def tr(self, string):
         return QCoreApplication.translate("DigitransitGeocoderPluginAlgorithm", string)
 
-    def create_instance(self):
+    def createInstance(self):  # noqa N802
         return DigitransitGeocoderPluginAlgorithm()

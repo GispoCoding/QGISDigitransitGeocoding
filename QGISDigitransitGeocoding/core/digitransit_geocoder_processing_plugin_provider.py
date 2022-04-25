@@ -22,7 +22,7 @@ class DigitransitProcessingPluginProvider(QgsProcessingProvider):
         """
         pass
 
-    def load_algorithms(self):
+    def loadAlgorithms(self):  # noqa N802
         """
         Loads all algorithms belonging to this provider.
         """
@@ -39,7 +39,7 @@ class DigitransitProcessingPluginProvider(QgsProcessingProvider):
         string should be a unique, short, character only string, eg "qgis" or
         "gdal". This string should not be localised.
         """
-        return "digitransitgeocoder"
+        return "qgisdigitransitgeocoding"
 
     def name(self):
         """
@@ -48,7 +48,7 @@ class DigitransitProcessingPluginProvider(QgsProcessingProvider):
 
         This string should be short (e.g. "Lastools") and localised.
         """
-        return self.tr("Digitransit.fi geocoding plugin")
+        return self.tr("QGISDigitransitGeocoding")
 
     def long_name(self):
         """
