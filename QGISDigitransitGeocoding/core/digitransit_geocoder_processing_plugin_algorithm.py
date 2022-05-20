@@ -176,7 +176,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterFeatureSink(self.OUTPUT, self.tr("Output layer"))
         )
 
-    def process_algorithm(self, parameters, context, feedback):
+    def processAlgorithm(self, parameters, context, feedback):  # noqa: N802
 
         self.address_field_indices = []
 
@@ -476,7 +476,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 )
                 raise DigitransitGeocoderPluginAlgorithmError()
 
-    def check_header(self, header_columns, address_field_names):
+    def checkHeader(self, header_columns, address_field_names):  # noqa: N802
         """
         Validity checks for the header including user specified
         header related information.

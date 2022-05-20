@@ -60,9 +60,6 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     DEFAULT_MINIMUM_CONFIDENCE_VALUE = 0.5
     DEFAULT_SHOW_ALL_RESULTS_ON_MAP = True
 
-    # tyypittamismalli
-    # pushButtonSearch: QPushButton
-
     closingPlugin = pyqtSignal()  # noqa N815
 
     def __init__(self, iface, parent=None):  # noqa QGS105
@@ -168,8 +165,6 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 type=bool,
             )
         )
-        # esimerkki eksplisiittisesta maarittamisesta
-        # self.pushButtonSearch.clicked.connect(self.on_pushbuttonsearch_clicked)
 
     def close_event(self, event):
         self.closingPlugin.emit()
