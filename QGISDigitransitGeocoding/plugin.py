@@ -25,7 +25,7 @@ from .core.digitransit_geocoder_processing_plugin_provider import (
 )
 from .qgis_plugin_tools.tools.custom_logging import setup_logger, teardown_logger
 from .qgis_plugin_tools.tools.i18n import setup_translation, tr
-from .qgis_plugin_tools.tools.resources import plugin_name
+from .qgis_plugin_tools.tools.resources import plugin_name, resources_path
 
 # Import the code for the dialog
 from .ui.digitransit_geocoder_dockwidget import DigitransitGeocoderDockWidget
@@ -135,10 +135,7 @@ class Plugin:
     def initGui(self) -> None:  # noqa N802
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         self.add_action(
-            (
-                ":/plugins/QGISDigitransitGeocoder/QGISDigitransitGeocoding"
-                "/resources/icons/icon.png"
-            ),
+            resources_path("icons/icon.png"),
             text=tr("Geocode a finnish address"),
             callback=self.run,
             parent=iface.mainWindow(),
@@ -175,4 +172,4 @@ class Plugin:
 
             # Show the dockwidget
             iface.addDockWidget(Qt.RightDockWidgetArea, self.dockwidget)
-            self.dockwidget.show()
+        self.dockwidget.show()

@@ -60,6 +60,9 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     DEFAULT_MINIMUM_CONFIDENCE_VALUE = 0.5
     DEFAULT_SHOW_ALL_RESULTS_ON_MAP = True
 
+    # tyypittamismalli
+    # pushButtonSearch: QPushButton
+
     closingPlugin = pyqtSignal()  # noqa N815
 
     def __init__(self, iface, parent=None):  # noqa QGS105
@@ -84,87 +87,89 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.network_access_manager = QNetworkAccessManager()
         self.network_access_manager.finished.connect(self.handle_search_response)
 
-        self.listWidgetGeocodingResults.itemClicked.connect(
+        self.listwidgetgeocodingresults.itemClicked.connect(
             self.handle_search_result_selected
         )
 
-        self.spinBoxMaxResults.setValue(
+        self.spinboxmaxresults.setValue(
             QSettings().value(
                 "/QGISDigitransitGeocoding/maxNumberOfResults",
                 DigitransitGeocoderDockWidget.DEFAULT_MAX_NUMBER_OF_RESULTS,
                 type=int,
             )
         )
-        self.checkBoxSearchMapCanvasArea.setChecked(
+        self.checkboxsearchmapcanvasarea.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/searchMapCanvasArea",
                 DigitransitGeocoderDockWidget.DEFAULT_SEARCH_MAP_CANVAS_AREA,
                 type=bool,
             )
         )
-        self.checkBoxNLS.setChecked(
+        self.checkboxnls.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/useNLSData",
                 DigitransitGeocoderDockWidget.DEFAULT_USE_NLS_DATA,
                 type=bool,
             )
         )
-        self.checkBoxOA.setChecked(
+        self.checkboxoa.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/useOAData",
                 DigitransitGeocoderDockWidget.DEFAULT_USE_OA_DATA,
                 type=bool,
             )
         )
-        self.checkBoxOSM.setChecked(
+        self.checkboxosm.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/useOSMData",
                 DigitransitGeocoderDockWidget.DEFAULT_USE_OSM_DATA,
                 type=bool,
             )
         )
-        self.checkBoxSearchAddress.setChecked(
+        self.checkboxsearchaddress.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/searchAddress",
                 DigitransitGeocoderDockWidget.DEFAULT_SEARCH_ADDRESS,
                 type=bool,
             )
         )
-        self.checkBoxSearchVenue.setChecked(
+        self.checkboxsearchvenue.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/searchVenue",
                 DigitransitGeocoderDockWidget.DEFAULT_SEARCH_VENUE,
                 type=bool,
             )
         )
-        self.checkBoxSearchStreet.setChecked(
+        self.checkboxsearchstreet.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/searchStreet",
                 DigitransitGeocoderDockWidget.DEFAULT_SEARCH_STREET,
                 type=bool,
             )
         )
-        self.horizontalSliderMinimumConfidenceValue.setValue(
+        self.horizontalsliderminimumconfidencevalue.setValue(
             QSettings().value(
                 "/QGISDigitransitGeocoding/minConfidenceValue",
                 DigitransitGeocoderDockWidget.DEFAULT_MINIMUM_CONFIDENCE_VALUE * 100,
                 type=int,
             )
         )
-        self.radioButtonResultsShowAll.setChecked(
+        self.radiobuttonresultsshowall.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/showAllResultsOnMap",
                 DigitransitGeocoderDockWidget.DEFAULT_SHOW_ALL_RESULTS_ON_MAP,
                 type=bool,
             )
         )
-        self.radioButtonResultsShowSelected.setChecked(
+        self.radiobuttonresultsshowselected.setChecked(
             QSettings().value(
                 "/QGISDigitransitGeocoding/showSelectedResultOnMap",
                 not DigitransitGeocoderDockWidget.DEFAULT_SHOW_ALL_RESULTS_ON_MAP,
                 type=bool,
             )
         )
+        # esimerkki eksplisiittisesta maarittamisesta
+        # self.pushButtonSearch.clicked.connect(self.on_pushbuttonsearch_clicked)
 
     def close_event(self, event):
         self.closingPlugin.emit()
@@ -174,27 +179,27 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
     # https://stackoverflow.com/questions/14311578/event-signal-is-emmitted-twice-every-time
     @pyqtSlot()
     def on_pushbuttonsearch_clicked(self):
-        self.search_text = self.lineEditAddress.text()
+        self.search_text = self.lineeditaddress.text()
         if len(self.search_text) == 0:
             return
         self.geocode(self.search_text)
 
     def geocode(self, search_text):
         base_url = "http://api.digitransit.fi/geocoding/v1/search"
-        size = self.spinBoxMaxResults.value()
+        size = self.spinboxmaxresults.value()
         search_url = base_url + "?text=" + search_text + "&size=" + str(size)
 
         if (
-            self.checkBoxNLS.isChecked()
-            or self.checkBoxOA.isChecked()
-            or self.checkBoxOSM.isChecked()
+            self.checkboxnls.isChecked()
+            or self.checkboxoa.isChecked()
+            or self.checkboxosm.isChecked()
         ):
             sources = "&sources="
-            if self.checkBoxNLS.isChecked():
+            if self.checkboxnls.isChecked():
                 sources = sources + "nlsfi,"
-            if self.checkBoxOA.isChecked():
+            if self.checkboxoa.isChecked():
                 sources = sources + "oa,"
-            if self.checkBoxOSM.isChecked():
+            if self.checkboxosm.isChecked():
                 sources = sources + "osm,"
             search_url = search_url + sources.rstrip(",")
         else:
@@ -206,16 +211,16 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             return
 
         if (
-            self.checkBoxSearchAddress.isChecked()
-            or self.checkBoxSearchVenue.isChecked()
-            or self.checkBoxSearchStreet.isChecked()
+            self.checkboxsearchaddress.isChecked()
+            or self.checkboxsearchvenue.isChecked()
+            or self.checkboxsearchstreet.isChecked()
         ):
             layers = "&layers="
-            if self.checkBoxSearchAddress.isChecked():
+            if self.checkboxsearchaddress.isChecked():
                 layers = layers + "address,"
-            if self.checkBoxSearchVenue.isChecked():
+            if self.checkboxsearchvenue.isChecked():
                 layers = layers + "venue,"
-            if self.checkBoxSearchStreet.isChecked():
+            if self.checkboxsearchstreet.isChecked():
                 layers = layers + "street,"
             search_url = search_url + layers.rstrip(",")
         else:
@@ -226,7 +231,7 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             )
             return
 
-        if self.checkBoxSearchMapCanvasArea.isChecked():
+        if self.checkboxsearchmapcanvasarea.isChecked():
             extent = self.iface.mapCanvas().extent()  # QgsRectangle
             min_lon = extent.xMinimum()
             min_lat = extent.yMinimum()
@@ -266,7 +271,7 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             bytes_string = reply.readAll()
             data_string = str(bytes_string, "utf-8")
 
-            self.listWidgetGeocodingResults.clear()
+            self.listwidgetgeocodingresults.clear()
 
             geocoding_result = json.loads(data_string)
 
@@ -275,9 +280,9 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             for feature in geocoding_result["features"]:
                 if (
                     feature["properties"]["confidence"]
-                    >= self.horizontalSliderMinimumConfidenceValue.value() / 100
+                    >= self.horizontalsliderminimumconfidencevalue.value() / 100
                 ):
-                    self.listWidgetGeocodingResults.addItem(
+                    self.listwidgetgeocodingresults.addItem(
                         feature["properties"]["label"]
                     )
                     self.features.append(feature)
@@ -290,7 +295,7 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 reply.errorString(), "QGISDigitransitGeocoding", Qgis.Warning
             )
 
-        if len(self.features) > 0 and self.radioButtonResultsShowAll.isChecked():
+        if len(self.features) > 0 and self.radiobuttonresultsshowall.isChecked():
 
             (layer, provider) = self.create_search_result_layer()
             features = []
@@ -305,9 +310,9 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
     def handle_search_result_selected(self, item):
 
-        if len(self.features) > 0 and self.radioButtonResultsShowSelected.isChecked():
+        if len(self.features) > 0 and self.radiobuttonresultsshowselected.isChecked():
             (layer, provider) = self.create_search_result_layer()
-            selected_feature_index = self.listWidgetGeocodingResults.currentRow()
+            selected_feature_index = self.listwidgetgeocodingresults.currentRow()
             feature = self.features[selected_feature_index]
             qgs_feature = self.create_feature(feature)
             provider.addFeature(qgs_feature)
@@ -427,94 +432,94 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         return qgs_feature
 
     @pyqtSlot()
-    def on_pushbutton_reset_clicked(self):
-        self.spinBoxMaxResults.setValue(
+    def on_pushbuttonreset_clicked(self):
+        self.spinboxmaxresults.setValue(
             DigitransitGeocoderDockWidget.DEFAULT_MAX_NUMBER_OF_RESULTS
         )
-        self.checkBoxSearchMapCanvasArea.setChecked(
+        self.checkboxsearchmapcanvasarea.setChecked(
             DigitransitGeocoderDockWidget.DEFAULT_SEARCH_MAP_CANVAS_AREA
         )
-        self.checkBoxNLS.setChecked(DigitransitGeocoderDockWidget.DEFAULT_USE_NLS_DATA)
-        self.checkBoxOA.setChecked(DigitransitGeocoderDockWidget.DEFAULT_USE_OA_DATA)
-        self.checkBoxOSM.setChecked(DigitransitGeocoderDockWidget.DEFAULT_USE_OSM_DATA)
-        self.checkBoxSearchAddress.setChecked(
+        self.checkboxnls.setChecked(DigitransitGeocoderDockWidget.DEFAULT_USE_NLS_DATA)
+        self.checkboxoa.setChecked(DigitransitGeocoderDockWidget.DEFAULT_USE_OA_DATA)
+        self.checkboxosm.setChecked(DigitransitGeocoderDockWidget.DEFAULT_USE_OSM_DATA)
+        self.checkboxsearchaddress.setChecked(
             DigitransitGeocoderDockWidget.DEFAULT_SEARCH_ADDRESS
         )
-        self.checkBoxSearchVenue.setChecked(
+        self.checkboxsearchvenue.setChecked(
             DigitransitGeocoderDockWidget.DEFAULT_SEARCH_VENUE
         )
-        self.checkBoxSearchStreet.setChecked(
+        self.checkboxsearchstreet.setChecked(
             DigitransitGeocoderDockWidget.DEFAULT_SEARCH_STREET
         )
-        self.horizontalSliderMinimumConfidenceValue.setValue(
+        self.horizontalsliderminimumconfidencevalue.setValue(
             DigitransitGeocoderDockWidget.DEFAULT_MINIMUM_CONFIDENCE_VALUE * 100
         )
-        self.radioButtonResultsShowAll.setChecked(
+        self.radiobuttonresultsshowall.setChecked(
             DigitransitGeocoderDockWidget.DEFAULT_SHOW_ALL_RESULTS_ON_MAP
         )
-        self.radioButtonResultsShowSelected.setChecked(
+        self.radiobuttonresultsshowselected.setChecked(
             not DigitransitGeocoderDockWidget.DEFAULT_SHOW_ALL_RESULTS_ON_MAP
         )
 
     @pyqtSlot(int)
-    def on_spinbox_max_results_value_changed(self, value):
+    def on_spinboxmaxresults_value_changed(self, value):
         QSettings().setValue("/QGISDigitransitGeocoding/maxNumberOfResults", value)
 
     def on_checkbox_search_mapcanvas_area_state_changed(self):
         QSettings().setValue(
             "/QGISDigitransitGeocoding/searchMapCanvasArea",
-            self.checkBoxSearchMapCanvasArea.isChecked(),
+            self.checkboxsearchmapcanvasarea.isChecked(),
         )
 
     def on_checkbox_nls_state_changed(self):
         QSettings().setValue(
-            "/QGISDigitransitGeocoding/useNLSData", self.checkBoxNLS.isChecked()
+            "/QGISDigitransitGeocoding/useNLSData", self.checkboxnls.isChecked()
         )
 
     def on_checkbox_oa_state_changed(self):
         QSettings().setValue(
-            "/QGISDigitransitGeocoding/useOAData", self.checkBoxOA.isChecked()
+            "/QGISDigitransitGeocoding/useOAData", self.checkboxoa.isChecked()
         )
 
     def on_checkbox_osm_state_changed(self):
         QSettings().setValue(
-            "/QGISDigitransitGeocoding/useOSMData", self.checkBoxOSM.isChecked()
+            "/QGISDigitransitGeocoding/useOSMData", self.checkboxosm.isChecked()
         )
 
     def on_checkbox_search_address_state_changed(self):
         QSettings().setValue(
             "/QGISDigitransitGeocoding/searchAddress",
-            self.checkBoxSearchAddress.isChecked(),
+            self.checkboxsearchaddress.isChecked(),
         )
 
     def on_checkbox_search_venue_state_changed(self):
         QSettings().setValue(
             "/QGISDigitransitGeocoding/searchVenue",
-            self.checkBoxSearchVenue.isChecked(),
+            self.checkboxsearchvenue.isChecked(),
         )
 
     def on_checkbox_search_street_state_changed(self):
         QSettings().setValue(
             "/QGISDigitransitGeocoding/searchStreet",
-            self.checkBoxSearchStreet.isChecked(),
+            self.checkboxsearchstreet.isChecked(),
         )
 
     def on_horizontalslider_minimum_confidence_value_changed(self):
         QSettings().setValue(
             "/QGISDigitransitGeocoding/minConfidenceValue",
-            self.horizontalSliderMinimumConfidenceValue.value(),
+            self.horizontalsliderminimumconfidencevalue.value(),
         )
 
     def on_radiobutton_results_showall_toggled(self):
         QSettings().setValue(
             "/QGISDigitransitGeocoding/showAllResultsOnMap",
-            self.radioButtonResultsShowAll.isChecked(),
+            self.radiobuttonresultsshowall.isChecked(),
         )
 
     def on_radiobutton_results_showselected_toggled(self):
         QSettings().setValue(
             "/QGISDigitransitGeocoding/showSelectedResultOnMap",
-            self.radioButtonResultsShowSelected.isChecked(),
+            self.radiobuttonresultsshowselected.isChecked(),
         )
 
     def tr(self, string):

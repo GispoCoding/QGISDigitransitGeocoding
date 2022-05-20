@@ -53,8 +53,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>475</width>
-         <height>720</height>
+         <width>456</width>
+         <height>717</height>
         </rect>
        </property>
        <property name="sizePolicy">
@@ -74,7 +74,7 @@
            </widget>
           </item>
           <item row="6" column="0">
-           <widget class="QListWidget" name="listWidgetGeocodingResults"/>
+           <widget class="QListWidget" name="listwidgetgeocodingresults"/>
           </item>
           <item row="7" column="0">
            <widget class="QGroupBox" name="groupBox_2">
@@ -98,7 +98,7 @@
                 </widget>
                </item>
                <item row="0" column="1">
-                <widget class="QSpinBox" name="spinBoxMaxResults">
+                <widget class="QSpinBox" name="spinboxmaxresults">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -125,7 +125,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QCheckBox" name="checkBoxSearchMapCanvasArea">
+              <widget class="QCheckBox" name="checkboxsearchmapcanvasarea">
                <property name="text">
                 <string>Search only from the visible map area</string>
                </property>
@@ -138,7 +138,7 @@
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
-                 <widget class="QCheckBox" name="checkBoxNLS">
+                 <widget class="QCheckBox" name="checkboxnls">
                   <property name="text">
                    <string>NLS.fi</string>
                   </property>
@@ -148,7 +148,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="checkBoxOSM">
+                 <widget class="QCheckBox" name="checkboxosm">
                   <property name="text">
                    <string>OpenStreetMap</string>
                   </property>
@@ -158,7 +158,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="checkBoxOA">
+                 <widget class="QCheckBox" name="checkboxoa">
                   <property name="text">
                    <string>OpenAddresses (VRK)</string>
                   </property>
@@ -177,7 +177,7 @@
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <item>
-                 <widget class="QCheckBox" name="checkBoxSearchStreet">
+                 <widget class="QCheckBox" name="checkboxsearchstreet">
                   <property name="text">
                    <string>Streets</string>
                   </property>
@@ -187,7 +187,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="checkBoxSearchVenue">
+                 <widget class="QCheckBox" name="checkboxsearchvenue">
                   <property name="text">
                    <string>Places and venues</string>
                   </property>
@@ -197,7 +197,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QCheckBox" name="checkBoxSearchAddress">
+                 <widget class="QCheckBox" name="checkboxsearchaddress">
                   <property name="text">
                    <string>Addresses</string>
                   </property>
@@ -215,10 +215,10 @@
           <item row="2" column="0">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
-             <widget class="QLineEdit" name="lineEditAddress"/>
+             <widget class="QLineEdit" name="lineeditaddress"/>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButtonSearch">
+             <widget class="QPushButton" name="pushbuttonsearch">
               <property name="text">
                <string>Search</string>
               </property>
@@ -246,7 +246,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QSlider" name="horizontalSliderMinimumConfidenceValue">
+                 <widget class="QSlider" name="horizontalsliderminimumconfidencevalue">
                   <property name="maximum">
                    <number>100</number>
                   </property>
@@ -281,7 +281,7 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout">
                 <item>
-                 <widget class="QRadioButton" name="radioButtonResultsShowAll">
+                 <widget class="QRadioButton" name="radiobuttonresultsshowall">
                   <property name="text">
                    <string>Show all search results on the map</string>
                   </property>
@@ -291,7 +291,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QRadioButton" name="radioButtonResultsShowSelected">
+                 <widget class="QRadioButton" name="radiobuttonresultsshowselected">
                   <property name="text">
                    <string>Show the selected result list item on the map</string>
                   </property>
@@ -313,7 +313,7 @@
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
-              <widget class="QPushButton" name="pushButtonReset">
+              <widget class="QPushButton" name="pushbuttonreset">
                <property name="text">
                 <string>Reset Settings</string>
                </property>
