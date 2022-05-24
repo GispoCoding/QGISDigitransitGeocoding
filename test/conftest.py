@@ -13,5 +13,3 @@ pytest-qgis (https://pypi.org/project/pytest-qgis) contains the following helpfu
   This should be used with tests that add stuff to QgsProject.
 
 """
-
-import pytest
