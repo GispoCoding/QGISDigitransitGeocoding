@@ -1,6 +1,9 @@
 # Testing
 pytest
 pytest-cov
+click==8.0.4
+coverage[toml]==6.2.0
+filelock==3.4.1
 pytest-qgis
 
 # Linting and formatting

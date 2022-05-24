@@ -8,20 +8,27 @@ astor==0.8.1
     # via flake8-qgis
 attrs==21.4.0
     # via
+    #   flake8-annotations
     #   flake8-bugbear
     #   pytest
-black==22.1.0
+black==22.3.0
     # via -r requirements-dev.in
 cfgv==3.3.1
     # via pre-commit
 click==8.0.4
-    # via black
-coverage[toml]==6.3.2
-    # via pytest-cov
+    # via
+    #   -r requirements-dev.in
+    #   black
+coverage[toml]==6.2
+    # via
+    #   -r requirements-dev.in
+    #   pytest-cov
 distlib==0.3.4
     # via virtualenv
-filelock==3.6.0
-    # via virtualenv
+filelock==3.4.1
+    # via
+    #   -r requirements-dev.in
+    #   virtualenv
 flake8==4.0.1
     # via
     #   -r requirements-dev.in
@@ -30,15 +37,15 @@ flake8==4.0.1
     #   flake8-polyfill
     #   flake8-qgis
     #   pep8-naming
-flake8-annotations==2.7.0
+flake8-annotations==2.9.0
     # via -r requirements-dev.in
-flake8-bugbear==22.1.11
+flake8-bugbear==22.4.25
     # via -r requirements-dev.in
 flake8-polyfill==1.0.2
     # via pep8-naming
 flake8-qgis==1.0.0
     # via -r requirements-dev.in
-identify==2.4.12
+identify==2.5.1
     # via pre-commit
 iniconfig==1.1.1
     # via pytest
@@ -46,7 +53,7 @@ isort==5.10.1
     # via -r requirements-dev.in
 mccabe==0.6.1
     # via flake8
-mypy==0.941
+mypy==0.950
     # via -r requirements-dev.in
 mypy-extensions==0.4.3
     # via
@@ -60,13 +67,13 @@ pathspec==0.9.0
     # via black
 pep8-naming==0.12.1
     # via -r requirements-dev.in
-platformdirs==2.5.1
+platformdirs==2.5.2
     # via
     #   black
     #   virtualenv
 pluggy==1.0.0
     # via pytest
-pre-commit==2.17.0
+pre-commit==2.19.0
     # via -r requirements-dev.in
 py==1.11.0
     # via pytest
@@ -74,9 +81,9 @@ pycodestyle==2.8.0
     # via flake8
 pyflakes==2.4.0
     # via flake8
-pyparsing==3.0.7
+pyparsing==3.0.9
     # via packaging
-pytest==7.1.1
+pytest==7.1.2
     # via
     #   -r requirements-dev.in
     #   pytest-cov
@@ -97,9 +104,9 @@ tomli==2.0.1
     #   coverage
     #   mypy
     #   pytest
-typing-extensions==4.1.1
+typing-extensions==4.2.0
     # via
     #   black
     #   mypy
-virtualenv==20.13.3
+virtualenv==20.14.1
     # via pre-commit
