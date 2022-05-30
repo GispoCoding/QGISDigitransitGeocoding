@@ -1,0 +1,18 @@
+# Testing
+pytest
+pytest-cov
+click==8.0.4
+coverage[toml]==6.2.0
+filelock==3.4.1
+pytest-qgis
+
+# Linting and formatting
+pre-commit
+black
+isort
+mypy
+flake8
+flake8-bugbear
+pep8-naming
+flake8-annotations
+flake8-qgis

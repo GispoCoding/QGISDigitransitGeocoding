@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/plugins/DigitransitGeocoder" >
-        <file>icon.png</file>
-    </qresource>
-</RCC>

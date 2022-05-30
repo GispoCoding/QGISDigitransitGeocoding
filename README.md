@@ -6,7 +6,7 @@ the <a href="https://www.maanmittauslaitos.fi/en">National Land Survey of Finlan
 <a href="https://dvv.fi/en/individuals">Popularion Register Center of Finland</a> and
 <a href="https://www.openstreetmap.org/">OpenStreetMap</a>.
 
-Please report issues preferably to Issues or to info@gispo.fi. The plugin is still is not actively developed, but if you want to support the development or request a feature, do not hesitate to contact us. 
+Please report issues preferably to Issues or to info@gispo.fi. The plugin is still is not actively developed, but if you want to support the development or request a feature, do not hesitate to contact us.
 
 Developed by **Gispo Ltd**.
 
@@ -32,7 +32,7 @@ In the first case, the required steps are:
 4. The rest of the panel offers a wide range of tuning possibilities. In there, you can modify the settings
    related to Search parameters and Search results. The opportunity for resetting current settings and
    restoring default ones can be found at the bottom of the panel.
-   
+
 In the second case, the desired functionality of the plugin can be found by selecting Processing tab from the QGIS top
 menu bar and navigating to Toolbox - Digitransit.fi geocoding plugin - Geocode - Geocode addresses in a CSV file.
 By double clicking it, a pop-up window opens. In Geocode Addresses in a CSV File window:
@@ -43,7 +43,7 @@ By double clicking it, a pop-up window opens. In Geocode Addresses in a CSV File
 4. Activate the check boxes according to your willingness to search for streets, venues and addresses.
 5. Give a name for the output layer (if not given, a temporary scratch layer gets created) and click Run! You can
    follow the progress of the geocoding process from the processing bar.
-   
+
 Note that in QGIS, a temporary scratch file can easily be exported and made permanent.
 
 ## Data sources
