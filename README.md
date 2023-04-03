@@ -18,6 +18,16 @@ Developed by **Gispo Ltd**.
 
 ## Usage
 
+As of 03.04.2023 the Digitransit API requires an subscription key. This subscription key (API key) can be acquired from
+https://portal-api.digitransit.fi/. In order to use the plugin, you must set a global variable in QGIS using the following steps:
+
+1. In QGIS, press Settings > Options.
+2. Switch to the Variables tab.
+3. Add a new variable by clicking the plus (+) sign.
+4. Name the variable "DIGITRANSIT_API_KEY" (without the quotation marks).
+5. Copy the API key to your clipboard.
+6. Paste your API key as the value of the newly created variable.
+
 There are two alternative ways to use the plugin: to geocode an individual Finnish address / place or to geocode a
 list of addresses / places (given as a CSV file).
 
