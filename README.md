@@ -27,6 +27,7 @@ https://portal-api.digitransit.fi/. In order to use the plugin, you must set a g
 4. Name the variable "DIGITRANSIT_API_KEY" (without the quotation marks).
 5. Copy the API key to your clipboard.
 6. Paste your API key as the value of the newly created variable.
+7. Now the plugin can be used. Please note that the variable is QGIS profile specific and can be viewed in plain text in the settings window.
 
 There are two alternative ways to use the plugin: to geocode an individual Finnish address / place or to geocode a
 list of addresses / places (given as a CSV file).
