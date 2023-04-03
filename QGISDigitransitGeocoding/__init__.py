@@ -25,6 +25,6 @@ if debugger in {"debugpy", "ptvsd", "pydevd"}:
 
 
 def classFactory(self):  # noqa N802
-    from .plugin import Plugin
+    from .digitransit_geocoding_plugin import Plugin
 
     return Plugin()

@@ -26,6 +26,7 @@ from qgis.core import (
     QgsPointXY,
     QgsProject,
     QgsVectorLayer,
+    QgsExpressionContextUtils,
 )
 from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtCore import (
@@ -38,8 +39,10 @@ from qgis.PyQt.QtCore import (
 )
 from qgis.PyQt.QtNetwork import QNetworkAccessManager, QNetworkReply, QNetworkRequest
 from qgis.PyQt.QtWidgets import QMessageBox, QWidget
+from PyQt5.QtWidgets import QMessageBox
 
 from ..qgis_plugin_tools.tools.resources import load_ui
+from .digitransit_apikey_message import KeyMissingDlg
 
 # from qgis.utils import iface
 
@@ -177,10 +180,18 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.search_text = self.lineeditaddress.text()
         if len(self.search_text) == 0:
             return
-        self.geocode(self.search_text)
+        try:
+            self.geocode(self.search_text)
+        except TypeError:
+            msgBox = KeyMissingDlg()
+            msgBox.exec_()
+            self.iface.messageBar().pushMessage("Error", "No DIGITRANSIT_API_KEY variable found.", level=1, duration=10)
+
 
     def geocode(self, search_text):
         base_url = "http://api.digitransit.fi/geocoding/v1/search"
+        api_key = bytes(QgsExpressionContextUtils.globalScope().variable('DIGITRANSIT_API_KEY'), 'utf-8')
+        hdrs = {b"digitransit-subscription-key":api_key}
         size = self.spinboxmaxresults.value()
         search_url = base_url + "?text=" + search_text + "&size=" + str(size)
 
@@ -256,6 +267,9 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         QgsMessageLog.logMessage(search_url, "QGISDigitransitGeocoding", Qgis.Info)
 
         request = QNetworkRequest()
+        if hdrs:
+            for hdr in hdrs.keys():
+                request.setRawHeader(hdr, hdrs[hdr])
         request.setUrl(QUrl(search_url))
 
         self.network_access_manager.get(request)
@@ -281,7 +295,14 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                         feature["properties"]["label"]
                     )
                     self.features.append(feature)
-
+        elif error == QNetworkReply.AuthenticationRequiredError:
+            self.iface.messageBar().pushMessage("Authentication error", "Check the validity of your API key.", level=1, duration=10)
+            QgsMessageLog.logMessage(
+                str(error), "QGISDigitransitGeocoding", Qgis.Warning
+            )
+            QgsMessageLog.logMessage(
+                reply.errorString(), "QGISDigitransitGeocoding", Qgis.Warning
+            )
         else:
             QgsMessageLog.logMessage(
                 str(error), "QGISDigitransitGeocoding", Qgis.Warning
@@ -289,19 +310,22 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             QgsMessageLog.logMessage(
                 reply.errorString(), "QGISDigitransitGeocoding", Qgis.Warning
             )
+        
+        try:
+            if len(self.features) > 0 and self.radiobuttonresultsshowall.isChecked():
 
-        if len(self.features) > 0 and self.radiobuttonresultsshowall.isChecked():
+                (layer, provider) = self.create_search_result_layer()
+                features = []
 
-            (layer, provider) = self.create_search_result_layer()
-            features = []
+                for feature in self.features:
+                    qgs_feature = self.create_feature(feature)
+                    features.append(qgs_feature)
 
-            for feature in self.features:
-                qgs_feature = self.create_feature(feature)
-                features.append(qgs_feature)
-
-            provider.addFeatures(features)
-            layer.commitChanges()
-            QgsProject.instance().addMapLayer(layer)
+                provider.addFeatures(features)
+                layer.commitChanges()
+                QgsProject.instance().addMapLayer(layer)
+        except:
+            pass
 
     def handle_search_result_selected(self, item):
 

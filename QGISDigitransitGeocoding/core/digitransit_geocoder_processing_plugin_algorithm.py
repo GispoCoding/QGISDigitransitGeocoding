@@ -6,10 +6,14 @@
 # Modified
 # by Pauliina Mäkinen
 # on 10.02.2022
+# Modified
+# by Juho Ervasti
+# on 02.03.2023
 
 import json
 import urllib
 import urllib.parse
+from urllib.error import HTTPError
 from pathlib import Path
 
 from qgis.core import (
@@ -31,8 +35,11 @@ from qgis.core import (
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
     QgsWkbTypes,
+    QgsExpressionContextUtils,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
+from qgis.utils import iface
+
 
 
 class DigitransitGeocoderPluginAlgorithmError(Exception):
@@ -62,7 +69,6 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     LOCATION_TYPE_ADDRESS = "LOCATION_TYPE_ADDRESS"
 
     def initAlgorithm(self, config=None):  # noqa N802
-
         self.separators = [",", ";", ":", self.tr("Other")]
 
         self.translator = None
@@ -73,7 +79,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterFile(
                 self.INPUT, self.tr("Input CSV file"), extension="csv"
             )
-        )
+        )   
 
         self.addParameter(
             QgsProcessingParameterEnum(
@@ -266,7 +272,36 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             )
             return {self.OUTPUT: None}
 
-        self.geocode_csv_rows(self.csv_rows)
+        try:
+            self.geocode_csv_rows(self.csv_rows)
+        except TypeError:
+            self.feedback.pushWarning(
+                    self.tr(
+                        "Error: No DIGITRANSIT_API_KEY variable found. You can get an API key from https://portal-api.digitransit.fi. You need to create a global variable DIGITRANSIT_API_KEY in QGIS settings and set your API key as the value."
+                    )
+                )
+            QgsMessageLog.logMessage(
+                self.tr(
+                    "Error: No DIGITRANSIT_API_KEY variable found. You can get an API key from https://portal-api.digitransit.fi. You need to create a global variable DIGITRANSIT_API_KEY in QGIS settings and set your API key as the value."
+                ),
+                "QGISDigitransitGeocoding",
+                Qgis.Warning,
+            )
+            raise DigitransitGeocoderPluginAlgorithmError
+        except HTTPError:
+            self.feedback.pushWarning(
+                    self.tr(
+                        "Access denied. Check the validity of your API key."
+                    )
+                )
+            QgsMessageLog.logMessage(
+                self.tr(
+                    "Access denied. Check the validity of your API key."
+                ),
+                "QGISDigitransitGeocoding",
+                Qgis.Warning,
+            )
+            raise DigitransitGeocoderPluginAlgorithmError
 
         return {self.OUTPUT: self.dest_id}
 
@@ -733,6 +768,8 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             fields.append(QgsField(header_column, QVariant.String))
 
     def geocode_csv_rows(self, rows):
+        api_key = QgsExpressionContextUtils.globalScope().variable('DIGITRANSIT_API_KEY')
+
         self.total_geocode_count = len(rows)
         self.geocode_count = 0
 
@@ -745,6 +782,10 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             address = address.rstrip(",")
 
             base_url = "http://api.digitransit.fi/geocoding/v1/search?"
+
+
+            
+            hdr = {'digitransit-subscription-key': api_key}
 
             search_parameters = {"text": address, "size": self.max_n_of_search_results}
 
@@ -814,7 +855,10 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
             QgsMessageLog.logMessage(search_url, "QGISDigitransitGeocoding", Qgis.Info)
 
-            r = urllib.request.urlopen(search_url)
+            req = urllib.request.Request(search_url, headers=hdr)
+            req.get_method = lambda: 'GET'
+            r = urllib.request.urlopen(req)
+
             geocoding_result = json.loads(
                 r.read().decode(r.info().get_param("charset") or "utf-8")
             )

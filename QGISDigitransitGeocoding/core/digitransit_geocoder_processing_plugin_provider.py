@@ -48,7 +48,7 @@ class DigitransitProcessingPluginProvider(QgsProcessingProvider):
 
         This string should be short (e.g. "Lastools") and localised.
         """
-        return self.tr("QGISDigitransitGeocoding")
+        return self.tr("Digitransit.fi Geocoder")
 
     def long_name(self):
         """

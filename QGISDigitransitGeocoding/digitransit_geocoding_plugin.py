@@ -12,10 +12,12 @@
  ***************************************************************************/
 
 """
+import os.path
+
 from typing import Callable, List, Optional
 
 from qgis.core import QgsApplication
-from qgis.PyQt.QtCore import QCoreApplication, Qt, QTranslator
+from qgis.PyQt.QtCore import QCoreApplication, Qt, QTranslator, QSettings, qVersion
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QWidget
 from qgis.utils import iface
@@ -45,9 +47,9 @@ class Plugin:
         """
         setup_logger(Plugin.name)
         self.dockwidget = DigitransitGeocoderDockWidget(iface)
-
+        self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale, file_path = setup_translation()
+        locale, file_path = setup_translation('QGISDigitransitGeocoding_{}.qm',resources_path('/i18n'))
         if file_path:
             self.translator = QTranslator()
             self.translator.load(file_path)
@@ -55,12 +57,12 @@ class Plugin:
             QCoreApplication.installTranslator(self.translator)
         else:
             pass
-
+        
         # Declare instance attributes
         self.actions: List[QAction] = []
         self.menu = Plugin.name
         self.toolbar = iface.addToolBar("QGISDigitransitGeocoding")
-        self.toolbar.setObjectName("QGISDigitransitGeocoding")
+        self.toolbar.setObjectName(tr("Digitransit.fi geocoding"))
 
         self.pluginIsActive = False
 
@@ -136,7 +138,7 @@ class Plugin:
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
         self.add_action(
             resources_path("icons/icon.png"),
-            text=tr("Geocode a finnish address"),
+            text=tr("Geocode a Finnish address"),
             callback=self.run,
             parent=iface.mainWindow(),
         )
