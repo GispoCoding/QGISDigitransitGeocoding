@@ -13,11 +13,10 @@
 
 """
 import os.path
-
 from typing import Callable, List, Optional
 
 from qgis.core import QgsApplication
-from qgis.PyQt.QtCore import QCoreApplication, Qt, QTranslator, QSettings, qVersion
+from qgis.PyQt.QtCore import QCoreApplication, Qt, QTranslator
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction, QWidget
 from qgis.utils import iface
@@ -49,7 +48,9 @@ class Plugin:
         self.dockwidget = DigitransitGeocoderDockWidget(iface)
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale, file_path = setup_translation('QGISDigitransitGeocoding_{}.qm',resources_path('/i18n'))
+        locale, file_path = setup_translation(
+            "QGISDigitransitGeocoding_{}.qm", resources_path("/i18n")
+        )
         if file_path:
             self.translator = QTranslator()
             self.translator.load(file_path)
@@ -57,7 +58,7 @@ class Plugin:
             QCoreApplication.installTranslator(self.translator)
         else:
             pass
-        
+
         # Declare instance attributes
         self.actions: List[QAction] = []
         self.menu = Plugin.name
