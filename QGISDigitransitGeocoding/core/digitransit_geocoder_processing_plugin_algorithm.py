@@ -13,12 +13,13 @@
 import json
 import urllib
 import urllib.parse
-from urllib.error import HTTPError
 from pathlib import Path
+from urllib.error import HTTPError
 
 from qgis.core import (
     Qgis,
     QgsCoordinateReferenceSystem,
+    QgsExpressionContextUtils,
     QgsFeature,
     QgsFeatureSink,
     QgsField,
@@ -35,11 +36,8 @@ from qgis.core import (
     QgsProcessingParameterNumber,
     QgsProcessingParameterString,
     QgsWkbTypes,
-    QgsExpressionContextUtils,
 )
 from qgis.PyQt.QtCore import QCoreApplication, QVariant
-from qgis.utils import iface
-
 
 
 class DigitransitGeocoderPluginAlgorithmError(Exception):
@@ -79,7 +77,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterFile(
                 self.INPUT, self.tr("Input CSV file"), extension="csv"
             )
-        )   
+        )
 
         self.addParameter(
             QgsProcessingParameterEnum(
@@ -183,7 +181,6 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
         )
 
     def processAlgorithm(self, parameters, context, feedback):  # noqa: N802
-
         self.address_field_indices = []
 
         self.parameters = parameters
@@ -276,13 +273,19 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             self.geocode_csv_rows(self.csv_rows)
         except TypeError:
             self.feedback.pushWarning(
-                    self.tr(
-                        "Error: No DIGITRANSIT_API_KEY variable found. You can get an API key from https://portal-api.digitransit.fi. You need to create a global variable DIGITRANSIT_API_KEY in QGIS settings and set your API key as the value."
-                    )
+                self.tr(
+                    """Error: No DIGITRANSIT_API_KEY variable found.
+                    You can get an API key from https://portal-api.digitransit.fi.
+                    You need to create a global variable DIGITRANSIT_API_KEY in QGIS
+                    settings and set your API key as the value."""
                 )
+            )
             QgsMessageLog.logMessage(
                 self.tr(
-                    "Error: No DIGITRANSIT_API_KEY variable found. You can get an API key from https://portal-api.digitransit.fi. You need to create a global variable DIGITRANSIT_API_KEY in QGIS settings and set your API key as the value."
+                    """Error: No DIGITRANSIT_API_KEY variable found.
+                    You can get an API key from https://portal-api.digitransit.fi.
+                    You need to create a global variable DIGITRANSIT_API_KEY in QGIS
+                    settings and set your API key as the value."""
                 ),
                 "QGISDigitransitGeocoding",
                 Qgis.Warning,
@@ -290,14 +293,10 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             raise DigitransitGeocoderPluginAlgorithmError
         except HTTPError:
             self.feedback.pushWarning(
-                    self.tr(
-                        "Access denied. Check the validity of your API key."
-                    )
-                )
+                self.tr("Access denied. Check the validity of your API key.")
+            )
             QgsMessageLog.logMessage(
-                self.tr(
-                    "Access denied. Check the validity of your API key."
-                ),
+                self.tr("Access denied. Check the validity of your API key."),
                 "QGISDigitransitGeocoding",
                 Qgis.Warning,
             )
@@ -308,7 +307,6 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
     def read_csv_data(
         self, file_path, file_encoding, col_separator, address_field_names_string
     ):
-
         # Let's try to use csvt-file (see https://giswiki.hsr.ch/GeoCSV) if one exists
         col_data_types = []
         try:
@@ -349,7 +347,6 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
         try:
             with open(file_path, "r", encoding=file_encoding) as csv_file:
-
                 address_field_name_tokens = address_field_names_string.replace(
                     ";", ","
                 ).split(",")
@@ -768,7 +765,9 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             fields.append(QgsField(header_column, QVariant.String))
 
     def geocode_csv_rows(self, rows):
-        api_key = QgsExpressionContextUtils.globalScope().variable('DIGITRANSIT_API_KEY')
+        api_key = QgsExpressionContextUtils.globalScope().variable(
+            "DIGITRANSIT_API_KEY"
+        )
 
         self.total_geocode_count = len(rows)
         self.geocode_count = 0
@@ -783,9 +782,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
 
             base_url = "http://api.digitransit.fi/geocoding/v1/search?"
 
-
-            
-            hdr = {'digitransit-subscription-key': api_key}
+            hdr = {"digitransit-subscription-key": api_key}
 
             search_parameters = {"text": address, "size": self.max_n_of_search_results}
 
@@ -856,7 +853,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
             QgsMessageLog.logMessage(search_url, "QGISDigitransitGeocoding", Qgis.Info)
 
             req = urllib.request.Request(search_url, headers=hdr)
-            req.get_method = lambda: 'GET'
+            req.get_method = lambda: "GET"
             r = urllib.request.urlopen(req)
 
             geocoding_result = json.loads(
@@ -878,7 +875,6 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 )
 
                 for feature in geocoding_result["features"][:n_of_search_result_rows]:
-
                     qgs_feature = QgsFeature()
                     lon = feature["geometry"]["coordinates"][0]
                     lat = feature["geometry"]["coordinates"][1]

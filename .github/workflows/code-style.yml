@@ -1,4 +1,4 @@
-name: code-style
+name: pre-commit
 
 on:
   pull_request:
@@ -6,9 +6,12 @@ on:
     branches: [master, main]
 
 jobs:
-  code-style:
+  pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - uses: pre-commit/action@v2.0.2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+          cache: pip
+      - uses: pre-commit/action@v3.0.0
