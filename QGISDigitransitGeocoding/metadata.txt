@@ -4,7 +4,7 @@ description=The plugin is meant for searching and geocoding Finnish addresses
 about=The plugin is meant for anyone who wants to utilize the capabilities of Digitransit.fi geocoding API for searching and geocoding Finnish addresses / places in QGIS. Please, note that the data is from National Land Survey of Finland Topographic Database, Population Register Centre of Finland and OpenStreetMap. The National Land Survey (NLS) and the Population Register Centre (via OpenAddresses) data are licensed under CC BY 4.0 license. The OpenStreetMap data is licensed under ODbL license.
 
  	As of 3.4.2023 an API key is required to access the Digitransit.fi geocoding API. The key can be acquired from https://portal-api.digitransit.fi/ and in order to use the plugin you must create a global variable in QGIS called DIGITRANSIT_API_KEY and set your subscription (API) key as the value. Please note that the variable is specific to a QGIS profile and may be viewed in plain text in the options window.
-version=0.2.0
+version=0.7.3
 qgisMinimumVersion=3.16
 author=Gispo Ltd.
 email=
