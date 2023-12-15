@@ -1,9 +1,23 @@
 [tool.isort]
 # Black compatible values for isort https://black.readthedocs.io/en/stable/compatible_configs.html#isort
 profile = "black"
+extend_skip = ["env"]
+
+[tool.black]
+extend-exclude = '''
+/(
+  | QGISDigitransitGeocoding/qgis_plugin_tools
+)/
+'''
 
 [tool.pytest.ini_options]
-addopts = "-v"
+addopts = "-v --cov=QGISDigitransitGeocoding --cov-report html --cov-report term"
+testpaths = "test"
 
 [tool.coverage.report]
 omit = ["QGISDigitransitGeocoding/qgis_plugin_tools/*"]
+
+[tool.qgis-plugin-ci]
+plugin_path = "QGISDigitransitGeocoding"
+github_organization_slug = "GispoCoding"
+project_slug = "QGISDigitransitGeocoding"
