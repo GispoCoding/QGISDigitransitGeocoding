@@ -304,12 +304,14 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
                 reply.errorString(), "QGISDigitransitGeocoding", Qgis.Warning
             )
         else:
+            self.iface.messageBar().pushMessage("Error", "An error occured. Check the log for details.", level=1, duration=10)
             QgsMessageLog.logMessage(
                 str(error), "QGISDigitransitGeocoding", Qgis.Warning
             )
             QgsMessageLog.logMessage(
                 reply.errorString(), "QGISDigitransitGeocoding", Qgis.Warning
             )
+            return
         
         try:
             if len(self.features) > 0 and self.radiobuttonresultsshowall.isChecked():
