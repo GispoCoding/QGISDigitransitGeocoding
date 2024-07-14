@@ -188,7 +188,7 @@ class DigitransitGeocoderDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             )
 
     def geocode(self, search_text):
-        base_url = "http://api.digitransit.fi/geocoding/v1/search"
+        base_url = "https://api.digitransit.fi/geocoding/v1/search"
         api_key = bytes(
             QgsExpressionContextUtils.globalScope().variable("DIGITRANSIT_API_KEY"),
             "utf-8",

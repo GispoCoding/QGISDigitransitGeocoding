@@ -780,7 +780,7 @@ class DigitransitGeocoderPluginAlgorithm(QgsProcessingAlgorithm):
                 address += row[index] + ","
             address = address.rstrip(",")
 
-            base_url = "http://api.digitransit.fi/geocoding/v1/search?"
+            base_url = "https://api.digitransit.fi/geocoding/v1/search?"
 
             hdr = {"digitransit-subscription-key": api_key}
 
