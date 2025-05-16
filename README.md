@@ -12,9 +12,8 @@ Developed by **Gispo Ltd**.
 
 ## Installation instructions
 
-1. Via QGIS plugin repository: Launch QGIS and navigate to the plugins menu by selecting Plugins > Manage and Install Plugins from the top menu. Go to All tab and search for Digitransit.fi Geocoder and click Install Plugin!
+Via QGIS plugin repository: Launch QGIS and navigate to the plugins menu by selecting Plugins > Manage and Install Plugins from the top menu. Go to All tab and search for Digitransit.fi Geocoder and click Install Plugin!
 
-2. From ZIP-file: Go to green Code button and choose Download ZIP option. Lauch QGIS and navigate to plugins menu (as in 1), but this time, go to Install from ZIP tab, set the correct path to the ZIP file you just downloaded and click Install Plugin!
 
 ## Usage
 
